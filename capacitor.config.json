@@ -1,0 +1,6 @@
+{
+  "appId": "com.kount.kakaotalk",
+  "appName": "카톡 대화 분석 리포트",
+  "webDir": "out",
+  "bundledWebRuntime": false
+}

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">카톡 대화 분석 리포트</string>
+    <string name="title_activity_main">카톡 대화 분석 리포트</string>
+    <string name="package_name">com.kount.kakaotalk</string>
+    <string name="custom_url_scheme">com.kount.kakaotalk</string>
+</resources>
