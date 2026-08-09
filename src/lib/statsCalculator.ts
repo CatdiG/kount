@@ -1,4 +1,5 @@
 import { ChatMessage, ParsingResult, SpecialRankings, UserStat } from '@/types/chat';
+import { isValidKakaoNickname } from '@/lib/kakaotalkParser';
 
 export function cleanTextFirstPass(text: string): string {
   return text
@@ -25,6 +26,9 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
         keyboardWarrior: [],
         salaryLupin: [],
         commentAlba: [],
+        miracleDobby: [],
+        angangEmoji: [],
+        questionKiller: [],
       },
       totalMessages: 0,
       totalCharacters: 0,
@@ -51,6 +55,9 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
       totalMessages: number;
       charCount: number;
       profanityCount: number;
+      cryingCount: number;
+      questionCount: number;
+      morningCount: number;
       workHourMessages: number;
       commentCount: number;
       activeDays: Set<string>;
@@ -59,6 +66,9 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
       replyDeltas: number[];
       pingPongExamples: string[];
       profanityExamples: string[];
+      cryingExamples: string[];
+      questionExamples: string[];
+      morningExamples: string[];
       workHourExamples: { timeStr: string; content: string }[];
       allContentMessages: string[];
     }
@@ -76,19 +86,29 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
     hourlyCount[msg.hour]++;
     dailyCountMap.set(msg.dateStr, (dailyCountMap.get(msg.dateStr) || 0) + 1);
 
+    if (!isValidKakaoNickname(msg.nickname)) {
+      return;
+    }
+
     if (!userMap.has(msg.nickname)) {
       userMap.set(msg.nickname, {
         totalMessages: 0,
         charCount: 0,
         profanityCount: 0,
+        cryingCount: 0,
+        questionCount: 0,
+        morningCount: 0,
         workHourMessages: 0,
         commentCount: 0,
         activeDays: new Set<string>(),
         words: [],
         rawWordMap: new Map<string, number>(),
         replyDeltas: [],
-        pingPongExamples: [],
         profanityExamples: [],
+        pingPongExamples: [],
+        cryingExamples: [],
+        questionExamples: [],
+        morningExamples: [],
         workHourExamples: [],
         allContentMessages: [],
       });
@@ -102,11 +122,27 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
 
     if (msg.isProfanity) {
       userData.profanityCount += 1;
-      if (userData.profanityExamples.length < 10) {
-        if (!userData.profanityExamples.includes(msg.content)) {
-          userData.profanityExamples.push(msg.content);
-        }
-      }
+      userData.profanityExamples.push(msg.content);
+    }
+
+    const cryingMatches = msg.content.match(/[ㅠㅜ]{2,}/g);
+    if (cryingMatches) {
+      userData.cryingCount += 1;
+      userData.cryingExamples.push(msg.content);
+    }
+
+    const contentWithoutUrls = msg.content.replace(/(https?:\/\/[^\s]+|www\.[^\s]+)/gi, '');
+    const contentWithoutReactions = contentWithoutUrls.replace(/(?:오호|오|아|어|음|엥|응|읭|잉|하|허)[\?!]+|\(\?+\)/gi, '');
+    const questionMatches = contentWithoutReactions.match(/\?/g);
+    if (questionMatches) {
+      userData.questionCount += 1;
+      userData.questionExamples.push(msg.content);
+    }
+
+    const morningMatches = msg.content.match(/모닝|몬잉|머닝/gi);
+    if (morningMatches) {
+      userData.morningCount += 1;
+      userData.morningExamples.push(msg.content);
     }
 
     // Work hour check: 09:00 ~ 18:00
@@ -220,7 +256,10 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
     }
 
     const pingPongExamples = Array.from(new Set(data.pingPongExamples)).slice(0, 5);
-    const profanityExamples = Array.from(new Set(data.profanityExamples)).slice(0, 5);
+    const profanityExamples = data.profanityExamples;
+    const cryingExamples = data.cryingExamples;
+    const questionExamples = data.questionExamples;
+    const morningExamples = data.morningExamples;
     const workHourExamples = data.workHourExamples.slice(0, 5);
 
     return {
@@ -235,6 +274,12 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
       profanityCount: data.profanityCount,
       profanityRatio,
       profanityExamples,
+      cryingCount: data.cryingCount,
+      cryingExamples,
+      questionCount: data.questionCount,
+      questionExamples,
+      morningCount: data.morningCount,
+      morningExamples,
       workHourMessages: data.workHourMessages,
       workHourRatio,
       workHourExamples,
@@ -258,7 +303,18 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
 
   const pingPongCandidates = userStats.filter((u) => u.avgReplyTimeSeconds !== null && u.replyCount >= 3);
   pingPongCandidates.sort((a, b) => (a.avgReplyTimeSeconds || 99999) - (b.avgReplyTimeSeconds || 99999));
-  const pingPongKing = pingPongCandidates.slice(0, 3);
+
+  pingPongCandidates.forEach((stat, idx) => {
+    if (idx === 0) {
+      stat.pingPongRank = 1;
+    } else if (stat.avgReplyTimeSeconds === pingPongCandidates[idx - 1].avgReplyTimeSeconds) {
+      stat.pingPongRank = pingPongCandidates[idx - 1].pingPongRank;
+    } else {
+      stat.pingPongRank = (pingPongCandidates[idx - 1].pingPongRank || 1) + 1;
+    }
+  });
+
+  const pingPongKing = pingPongCandidates.filter((u) => (u.pingPongRank || 99) <= 3);
 
   const keyboardCandidates = userStats.filter((u) => u.profanityCount > 0);
   keyboardCandidates.sort((a, b) => b.profanityCount - a.profanityCount || b.profanityRatio - a.profanityRatio || b.totalMessages - a.totalMessages);
@@ -278,7 +334,18 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
 
   const salaryCandidates = userStats.filter((u) => u.workHourMessages > 0);
   salaryCandidates.sort((a, b) => b.workHourMessages - a.workHourMessages || b.workHourRatio - a.workHourRatio);
-  const salaryLupin = salaryCandidates.slice(0, 3);
+
+  salaryCandidates.forEach((stat, idx) => {
+    if (idx === 0) {
+      stat.salaryRank = 1;
+    } else if (stat.workHourMessages === salaryCandidates[idx - 1].workHourMessages) {
+      stat.salaryRank = salaryCandidates[idx - 1].salaryRank;
+    } else {
+      stat.salaryRank = (salaryCandidates[idx - 1].salaryRank || 1) + 1;
+    }
+  });
+
+  const salaryLupin = salaryCandidates.filter((u) => (u.salaryRank || 99) <= 3);
 
   const commentCandidates = userStats.filter((u) => u.commentCount > 0);
   commentCandidates.sort((a, b) => b.commentCount - a.commentCount || b.totalMessages - a.totalMessages);
@@ -295,11 +362,61 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
 
   const commentAlba = commentCandidates.filter((u) => (u.commentRank || 99) <= 3);
 
+  const morningCandidates = userStats.filter(
+    (u) => u.morningCount > 0 && !u.nickname.includes('오픈채팅봇')
+  );
+  morningCandidates.sort((a, b) => b.morningCount - a.morningCount || b.totalMessages - a.totalMessages);
+
+  morningCandidates.forEach((stat, idx) => {
+    if (idx === 0) {
+      stat.morningRank = 1;
+    } else if (stat.morningCount === morningCandidates[idx - 1].morningCount) {
+      stat.morningRank = morningCandidates[idx - 1].morningRank;
+    } else {
+      stat.morningRank = (morningCandidates[idx - 1].morningRank || 1) + 1;
+    }
+  });
+
+  const miracleDobby = morningCandidates.filter((u) => (u.morningRank || 99) <= 3);
+
+  const angangCandidates = userStats.filter((u) => u.cryingCount > 0);
+  angangCandidates.sort((a, b) => b.cryingCount - a.cryingCount || b.totalMessages - a.totalMessages);
+
+  angangCandidates.forEach((stat, idx) => {
+    if (idx === 0) {
+      stat.cryingRank = 1;
+    } else if (stat.cryingCount === angangCandidates[idx - 1].cryingCount) {
+      stat.cryingRank = angangCandidates[idx - 1].cryingRank;
+    } else {
+      stat.cryingRank = (angangCandidates[idx - 1].cryingRank || 1) + 1;
+    }
+  });
+
+  const angangEmoji = angangCandidates.filter((u) => (u.cryingRank || 99) <= 3);
+
+  const questionCandidates = userStats.filter((u) => u.questionCount > 0);
+  questionCandidates.sort((a, b) => b.questionCount - a.questionCount || b.totalMessages - a.totalMessages);
+
+  questionCandidates.forEach((stat, idx) => {
+    if (idx === 0) {
+      stat.questionRank = 1;
+    } else if (stat.questionCount === questionCandidates[idx - 1].questionCount) {
+      stat.questionRank = questionCandidates[idx - 1].questionRank;
+    } else {
+      stat.questionRank = (questionCandidates[idx - 1].questionRank || 1) + 1;
+    }
+  });
+
+  const questionKiller = questionCandidates.filter((u) => (u.questionRank || 99) <= 3);
+
   const specialRankings: SpecialRankings = {
     pingPongKing,
     keyboardWarrior,
     salaryLupin,
     commentAlba,
+    miracleDobby,
+    angangEmoji,
+    questionKiller,
   };
 
   const sortedDates = Array.from(dailyCountMap.keys()).sort();

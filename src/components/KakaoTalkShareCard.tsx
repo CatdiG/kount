@@ -5,7 +5,7 @@ import { toPng, toBlob } from 'html-to-image';
 import { ParsingResult, UserStat } from '@/types/chat';
 import { PROFANITY_REGEX } from '@/lib/kakaotalkParser';
 import ChatCharts from '@/components/ChatCharts';
-import { HulkNativeEmoji, ThiefAvatarEmoji, CommentAlbaRobotEmoji } from '@/components/SpecialRankingsGrid';
+import { PingPongEmoji, KeyboardWarriorEmoji, HulkNativeEmoji, ThiefAvatarEmoji, CommentAlbaRobotEmoji, MiracleDobbyEmoji, AngangEmoji, QuestionEmoji, SpeechHabitEmoji, TrophySpeechEmoji, HallOfFameEmoji, ReportHeaderEmoji, CrystalBallEmoji } from '@/components/SpecialRankingsGrid';
 import {
   Download,
   Share2,
@@ -16,6 +16,8 @@ import {
   Quote,
   MessageCircle,
   MessageSquare,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 
 interface KakaoTalkShareCardProps {
@@ -71,7 +73,7 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
   } = parsingResult;
 
   const top3Chatters = userStats.slice(0, 3);
-  const { pingPongKing, keyboardWarrior, salaryLupin, commentAlba } = specialRankings;
+  const { pingPongKing, keyboardWarrior, salaryLupin, commentAlba, miracleDobby, angangEmoji, questionKiller } = specialRankings;
 
   let peakHour = 0;
   let peakCount = 0;
@@ -95,7 +97,7 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
 
       for (let i = 0; i < validRefs.length; i++) {
         await new Promise((resolve) => setTimeout(resolve, 350));
-        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 450 };
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
 
         const dataUrl = await toPng(validRefs[i], captureOptions);
         const link = document.createElement('a');
@@ -140,7 +142,7 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
 📱 [카카오톡 대화 분석 완벽 리포트]
 📅 분석 기간: ${startDateStr} ~ ${endDateStr} (${totalMessages.toLocaleString()}개 메시지, ${uniqueUsersCount}명)
 
-🥇 [전체 채팅 작성량 Top 3]
+🥇 [카카오톡 상주민]
 ${userStats
   .slice(0, 3)
   .map(
@@ -149,20 +151,20 @@ ${userStats
   )
   .join('\n')}
 
-🗣️ [멤버별 대표 말버릇]
+🗣️ [멤버별 순위& 레퍼토리]
 ${formatHabits(userStats)}
 
 👑 [명예의 전당 Top 3]
 🏓 핑퐁왕: ${formatTop3List(pingPongKing, (u) => u.avgReplyTimeFormatted)}
-👊 손가락만 헐크: ${formatTop3List(keyboardWarrior, (u) => `${u.profanityCount}건`)}
-💼 월급루팡: ${formatTop3List(salaryLupin, (u) => `${u.workHourMessages}회`)}
+💻 랜선 여포: ${formatTop3List(keyboardWarrior, (u) => `${u.profanityCount}개`)}
+💼 월급루팡: ${formatTop3List(salaryLupin, (u) => `${u.workHourMessages}개`)}
       `.trim();
 
       const validRefs = capturePageRefs.current.filter((ref): ref is HTMLDivElement => ref !== null);
       const shareFiles: File[] = [];
 
       for (let i = 0; i < validRefs.length; i++) {
-        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 450 };
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
 
         const blob = await toBlob(validRefs[i], captureOptions);
         if (blob) {
@@ -218,8 +220,8 @@ ${formatHabits(userStats)}
         <div className="p-4 sm:p-6 bg-gradient-to-b from-indigo-50/60 to-white space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200/80 pb-4">
             <div className="flex items-center gap-2.5">
-              <div className="p-2.5 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-amber-500 text-white shadow-md flex-shrink-0">
-                <Crown className="w-6 h-6 text-amber-200" />
+              <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center">
+                <ReportHeaderEmoji size={42} />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
@@ -234,59 +236,57 @@ ${formatHabits(userStats)}
             </div>
           </div>
 
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-2.5 shadow-xs overflow-hidden box-border">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                <span className="text-amber-500">💬</span> 전체 채팅 작성량 Top 3
-              </h3>
-              <span className="text-[10px] text-slate-500 font-mono">
-                총 {totalMessages.toLocaleString()}개 기준
-              </span>
-            </div>
+        {/* Section 1: 카카오톡 상주민 */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+            <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+              <TrophySpeechEmoji size={32} /> 카카오톡 상주민
+            </h3>
+            <span className="text-[10px] text-slate-500 font-mono">
+              총 {totalMessages.toLocaleString()}개 기준
+            </span>
+          </div>
 
-            <div className="grid grid-cols-1 gap-2">
-              {top3Chatters.map((user, idx) => {
-                const medalBgStyles = [
-                  'bg-gradient-to-br from-amber-100 via-yellow-100 to-amber-200 border-amber-400 shadow-xs text-amber-950',
-                  'bg-gradient-to-br from-slate-200 via-slate-100 to-slate-300 border-slate-400 shadow-xs text-slate-900',
-                  'bg-gradient-to-br from-[#f8d7c4] via-[#e5a073] to-[#c66e2e] border-[#a85317] shadow-xs text-[#3b1702]',
-                ];
+          <div className="grid grid-cols-3 gap-2">
+            {top3Chatters.map((user, idx) => {
+              const medalBgStyles = [
+                'bg-gradient-to-b from-amber-100 via-yellow-100 to-amber-200 border-amber-400 text-amber-950',
+                'bg-gradient-to-b from-slate-200 via-slate-100 to-slate-300 border-slate-400 text-slate-900',
+                'bg-gradient-to-b from-[#f8d7c4] via-[#e5a073] to-[#c66e2e] border-[#a85317] text-[#3b1702]',
+              ];
 
-                const metricBadgeStyles = [
-                  'bg-amber-200/80 text-amber-950 border-amber-400',
-                  'bg-slate-200/90 text-slate-900 border-slate-400',
-                  'bg-[#f0ba97] text-[#3b1702] border-[#a85317]',
-                ];
+              const metricBadgeStyles = [
+                'bg-amber-200/80 text-amber-950 border-amber-400',
+                'bg-slate-200/90 text-slate-900 border-slate-400',
+                'bg-[#f0ba97] text-[#3b1702] border-[#a85317]',
+              ];
 
-                return (
-                  <div
-                    key={user.nickname}
-                    className={`p-3 rounded-xl border flex items-center justify-between overflow-hidden box-border ${medalBgStyles[idx]}`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0 pr-1">
-                      <span className="text-xs sm:text-sm font-extrabold flex-shrink-0">
-                        {idx === 0 ? '🥇 1위' : idx === 1 ? '🥈 2위' : '🥉 3위'}
-                      </span>
-                      <span className="font-extrabold text-xs sm:text-sm truncate">
-                        {user.nickname}
-                      </span>
-                    </div>
-
-                    <span className={`text-xs font-mono font-extrabold px-2 py-0.5 rounded border flex-shrink-0 ${metricBadgeStyles[idx]}`}>
-                      {user.totalMessages.toLocaleString()}개
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
+              return (
+                <div
+                  key={user.nickname}
+                  className={`p-2 rounded-xl border flex flex-col items-center justify-center text-center gap-1 ${medalBgStyles[idx]}`}
+                >
+                  <span className="text-[11px] font-black">
+                    {idx === 0 ? '🥇 1위' : idx === 1 ? '🥈 2위' : '🥉 3위'}
+                  </span>
+                  <span className="font-extrabold text-xs truncate max-w-full">
+                    {user.nickname}
+                  </span>
+                  <span className={`text-[9px] font-mono font-extrabold px-1.5 py-0.2 rounded border ${metricBadgeStyles[idx]}`}>
+                    {user.totalMessages.toLocaleString()}개
+                  </span>
+                </div>
+              );
+            })}
           </div>
         </div>
+      </div>
 
-        {/* Section 2: 멤버별 대표 말버릇 */}
+        {/* Section 2: 멤버별 순위& 레퍼토리 */}
         <div className="p-4 sm:p-6 bg-white space-y-3">
           <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
-            <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-1.5">
-              <span className="text-indigo-600">🗣️</span> 멤버별 대표 말버릇
+            <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+              <SpeechHabitEmoji size={32} /> 멤버별 순위& 레퍼토리
             </h3>
           </div>
 
@@ -330,26 +330,19 @@ ${formatHabits(userStats)}
           </div>
         </div>
 
-        {/* Section 3: 명예의 전당 👑 */}
-        <div className="p-4 sm:p-6 bg-slate-50/50 space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-            <div className="flex items-center gap-2">
-              <h2 className="text-xl font-black text-slate-900 tracking-tight">
-                명예의 전당 👑
-              </h2>
-            </div>
+        {/* Section 3: 명예의 전당 */}
+        <div className="p-4 sm:p-6 bg-white space-y-3">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-2.5">
+            <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+              <HallOfFameEmoji size={35} /> 명예의 전당
+            </h3>
           </div>
 
           <div className="grid grid-cols-1 gap-4">
             <UnifiedSpecialCard
-              title={
-                <span className="inline-flex items-center gap-1.5">
-                  <span>핑퐁왕</span>
-                  <span className="text-xl leading-none">🏓</span>
-                </span>
-              }
-              subtitle="다른 사람이 말하면 평균 답장 시간이 가장 짧은 닉네임"
-              icon={<Zap className="w-4 h-4 text-indigo-600" />}
+              title="핑퐁왕"
+              subtitle="다른 사람이 말하면 평균 답장 시간이 가장 짧은 사람"
+              icon={<PingPongEmoji size={32} />}
               users={pingPongKing}
               metricFormatter={(u) => u.avgReplyTimeFormatted}
               category="pingpong"
@@ -358,84 +351,104 @@ ${formatHabits(userStats)}
             />
 
             <UnifiedSpecialCard
-              title={
-                <span className="inline-flex items-center gap-1.5">
-                  <span>손가락만 헐크</span>
-                  <HulkNativeEmoji className="text-lg" />
-                </span>
-              }
-              subtitle="비속어·욕설 사용 건수가 가장 많은 닉네임"
-              icon={<Flame className="w-4 h-4 text-indigo-600" />}
-              users={keyboardWarrior}
-              metricFormatter={(u) => `비속어 ${u.profanityCount}건`}
-              category="keyboard"
-              getExamples={(u) => {
-                if (!u.profanityExamples || u.profanityExamples.length === 0) return [];
-                const limit = u.profanityCount >= 5 ? 5 : u.profanityCount;
-                return u.profanityExamples.slice(0, limit);
-              }}
-              emptyText="비속어 사용자가 없거나 부족합니다."
-            />
-
-            <UnifiedSpecialCard
-              title={
-                <span className="inline-flex items-center gap-1.5">
-                  <span>월급루팡</span>
-                  <ThiefAvatarEmoji size={26} />
-                </span>
-              }
-              subtitle="오전 9시~오후 6시 사이 채팅 메시지가 가장 많은 닉네임"
-              icon={<Briefcase className="w-5 h-5 text-indigo-600" />}
+              title="월급루팡"
+              subtitle="오전 9시~오후 6시 사이 채팅 메시지가 가장 많은 사람"
+              icon={<ThiefAvatarEmoji size={32} />}
               users={salaryLupin}
-              metricFormatter={(u) => `${u.workHourMessages}회`}
+              metricFormatter={(u) => `${u.workHourMessages}개`}
               category="lupin"
               getExamples={() => []}
               emptyText="근무시간 내 메시지가 없습니다."
             />
 
             <UnifiedSpecialCard
-              title={
-                <span className="inline-flex items-center gap-1.5">
-                  <span>댓글알바</span>
-                  <CommentAlbaRobotEmoji size={26} />
-                </span>
-              }
-              subtitle="다른 사람 대화에 댓글/답글을 가장 많이 남긴 닉네임"
-              icon={<MessageSquare className="w-4 h-4 text-indigo-600" />}
+              title="댓글알바"
+              subtitle="다른 사람 대화에 댓글/답글을 가장 많이 남긴 사람"
+              icon={<CommentAlbaRobotEmoji size={32} />}
               users={commentAlba}
-              metricFormatter={(u) => `댓글 ${u.commentCount}개`}
+              metricFormatter={(u) => `${u.commentCount}개`}
               category="comment"
               getExamples={() => []}
               emptyText="댓글/답글 작성 데이터가 부족합니다."
             />
-          </div>
 
-          <div className="pt-6 border-t border-slate-200 space-y-4">
-            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <div className="flex items-center gap-2">
-                <h2 className="text-xl font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                  대화 성향 분석 📈
+            <UnifiedSpecialCard
+              title="미라클 도비"
+              subtitle="아침 개같은거 또 왔네"
+              icon={<MiracleDobbyEmoji size={32} />}
+              users={miracleDobby}
+              metricFormatter={(u) => `${u.morningCount}개`}
+              category="morning"
+              getExamples={() => []}
+              emptyText="아침 인사(모닝/몬잉/머닝) 사용자가 없거나 부족합니다."
+            />
+
+            <UnifiedSpecialCard
+              title="랜선 여포"
+              subtitle="비속어·욕설 사용 건수가 가장 많은 사람"
+              icon={<KeyboardWarriorEmoji size={32} />}
+              users={keyboardWarrior}
+              metricFormatter={(u) => `${u.profanityCount}개`}
+              category="keyboard"
+              getExamples={(u) => u.profanityExamples || []}
+              emptyText="비속어 사용자가 없거나 부족합니다."
+            />
+
+            <UnifiedSpecialCard
+              title="앙앙이"
+              subtitle="대화 중 눈물을 가장 많이 흘린 사람"
+              icon={<AngangEmoji size={32} />}
+              users={angangEmoji}
+              metricFormatter={(u) => `${u.cryingCount}개`}
+              category="angang"
+              getExamples={(u) => u.cryingExamples || []}
+              emptyText="ㅠㅠ/ㅜㅜ 사용자가 없거나 부족합니다."
+            />
+
+            <UnifiedSpecialCard
+              title="물음표 살인마"
+              subtitle="대화 중 '?'를 가장 많이 사용한 사람"
+              icon={<QuestionEmoji size={32} />}
+              users={questionKiller}
+              metricFormatter={(u) => `${u.questionCount}개`}
+              category="question"
+              getExamples={(u) => u.questionExamples || []}
+              emptyText="물음표(?) 사용자가 없거나 부족합니다."
+            />
+          </div>
+        </div>
+
+        {/* Section 4: 대화 성향 분석 */}
+        <div className="p-4 sm:p-6 bg-white space-y-4">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center">
+                <CrystalBallEmoji size={42} />
+              </div>
+              <div>
+                <h2 className="text-lg sm:text-2xl font-black text-slate-900 tracking-tight">
+                  대화 성향 분석
                 </h2>
               </div>
             </div>
-            <ChatCharts parsingResult={parsingResult} />
           </div>
+          <ChatCharts parsingResult={parsingResult} />
         </div>
       </div>
 
-      {/* 📱 [공유/다운로드 전용 캡처 DOM] */}
+      {/* 📱 [공유/다운로드 전용 캡처 DOM - 440px 세로 모바일 세로형 스크린 핏 & 잘림 없는 3페이지 분할] */}
       <div className="fixed -left-[9999px] top-0 pointer-events-none space-y-6">
-        {/* 🟡 PAGE 1 (통합 카드): 전체 채팅 작성량 Top 3 + 멤버별 대표 말버릇 (전체 수록) */}
+        {/* 🟡 PAGE 1 (기본 대시보드): 카카오톡 상주민 Top 3 + 멤버별 순위& 레퍼토리 (전체) */}
         <div
           ref={(el) => { capturePageRefs.current[0] = el; }}
-          className="w-[450px] min-h-[800px] rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-between box-border relative space-y-4"
+          className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative space-y-4 break-inside-avoid"
         >
           {/* Top Header Bar */}
-          <div className="border-b border-slate-200 pb-3 space-y-1.5">
+          <div className="border-b border-slate-200 pb-3 space-y-1.5 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-amber-500 text-white shadow-sm">
-                  <Crown className="w-5 h-5 text-amber-200" />
+                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                  <ReportHeaderEmoji size={30} />
                 </div>
                 <div>
                   <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
@@ -457,11 +470,11 @@ ${formatHabits(userStats)}
             </div>
           </div>
 
-          {/* Section 1: 전체 채팅 작성량 Top 3 */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 shadow-2xs">
+          {/* Section 1: 카카오톡 상주민 */}
+          <div className="space-y-2 flex-shrink-0 break-inside-avoid">
             <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
               <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                <span className="text-amber-500">💬</span> 전체 채팅 작성량 Top 3
+                <TrophySpeechEmoji size={26} /> 카카오톡 상주민
               </h3>
               <span className="text-[9px] text-slate-500 font-mono">
                 총 {totalMessages.toLocaleString()}개 기준
@@ -502,22 +515,22 @@ ${formatHabits(userStats)}
             </div>
           </div>
 
-          {/* Section 2: 멤버별 대표 말버릇 (전체 멤버 묶음) */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 shadow-2xs">
+          {/* Section 2: 멤버별 순위& 레퍼토리 (전체 멤버 묶음) */}
+          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 shadow-2xs flex-grow my-1 overflow-hidden box-border break-inside-avoid">
             <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
               <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                <span className="text-indigo-600">🗣️</span> 멤버별 대표 말버릇 (전체)
+                <SpeechHabitEmoji size={26} /> 멤버별 순위& 레퍼토리
               </h3>
               <span className="text-[9px] text-slate-500 font-mono">
                 총 {userStats.length}명
               </span>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               {userStats.map((user) => (
                 <div
                   key={user.nickname}
-                  className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 text-xs shadow-2xs overflow-hidden box-border whitespace-nowrap"
+                  className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 text-xs shadow-2xs overflow-hidden box-border whitespace-nowrap break-inside-avoid"
                 >
                   <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0 whitespace-nowrap">
                     <RankBadge rank={user.rank} />
@@ -552,49 +565,30 @@ ${formatHabits(userStats)}
               ))}
             </div>
           </div>
-
-          {/* Footer */}
-          <div className="pt-2 flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-200 font-mono">
-            <span>💬 KakaoTalk Mobile Analytics Report</span>
-            <span>1 / {totalPages} (Top3 & 말버릇 통합 카드)</span>
-          </div>
         </div>
 
-        {/* 👑 PAGE 2: 명예의 전당 👑 (핑퐁왕 & 손가락만 헐크) */}
+        {/* 👑 PAGE 2 (명예의 전당 Part 1): 핑퐁왕, 월급루팡, 댓글알바 */}
         <div
           ref={(el) => { capturePageRefs.current[1] = el; }}
-          className="w-[450px] min-h-[800px] h-auto overflow-visible rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-between box-border relative my-4"
+          className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
         >
           {/* Top Header Bar */}
-          <div className="border-b border-slate-200 pb-3 space-y-1.5">
+          <div className="border-b border-slate-200 pb-2.5 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="p-2 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-sm">
-                  <Crown className="w-5 h-5 text-amber-200" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                    명예의 전당 👑
-                  </h2>
-                  <p className="text-[10px] text-slate-500 font-medium">
-                    📅 {startDateStr} ~ {endDateStr} ({totalMessages.toLocaleString()}개 대화)
-                  </p>
-                </div>
+                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <HallOfFameEmoji size={28} /> 명예의 전당
+                </h3>
               </div>
             </div>
           </div>
 
-          {/* Body: 핑퐁왕 & 손가락만 헐크 Cards (완벽 노-잘림) */}
-          <div className="space-y-3 my-auto py-2">
+          {/* Body: 3 Special Cards (핑퐁왕, 월급루팡, 댓글알바) */}
+          <div className="space-y-3 flex-shrink-0">
             <UnifiedSpecialCard
-              title={
-                <span className="inline-flex items-center gap-1">
-                  <span>핑퐁왕</span>
-                  <span className="text-base sm:text-lg leading-none">🏓</span>
-                </span>
-              }
-              subtitle="답장 시간이 가장 짧은 닉네임"
-              icon={<Zap className="w-3.5 h-3.5 text-indigo-600" />}
+              title="핑퐁왕"
+              subtitle="답장 시간이 가장 짧은 사람"
+              icon={<PingPongEmoji size={18} />}
               users={pingPongKing}
               metricFormatter={(u) => u.avgReplyTimeFormatted}
               category="pingpong"
@@ -603,107 +597,137 @@ ${formatHabits(userStats)}
             />
 
             <UnifiedSpecialCard
-              title={<span className="inline-flex items-center gap-1">손가락만 헐크 <HulkNativeEmoji className="text-base" /></span>}
-              subtitle="비속어·욕설 사용 건수가 가장 많은 닉네임"
-              icon={<Flame className="w-3.5 h-3.5 text-indigo-600" />}
-              users={keyboardWarrior}
-              metricFormatter={(u) => `비속어 ${u.profanityCount}건`}
-              category="keyboard"
-              getExamples={(u) => {
-                if (!u.profanityExamples || u.profanityExamples.length === 0) return [];
-                const limit = u.profanityCount >= 5 ? 5 : u.profanityCount;
-                return u.profanityExamples.slice(0, limit);
-              }}
-              emptyText="데이터 부족"
-            />
-          </div>
-
-          {/* Footer */}
-          <div className="pt-2 flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-200 font-mono">
-            <span>💬 KakaoTalk Mobile Analytics Report</span>
-            <span>2 / {totalPages} (명예의 전당 핑퐁왕 & 헐크 카드)</span>
-          </div>
-        </div>
-
-        {/* 💼 PAGE 3: 명예의 전당 (월급루팡) & 📈 대화 성향 분석 */}
-        <div
-          ref={(el) => { capturePageRefs.current[2] = el; }}
-          className="w-[450px] min-h-[800px] h-auto overflow-visible rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-between box-border relative my-4"
-        >
-          {/* Body: 2 Main Sections */}
-          <div className="space-y-3.5 my-auto">
-            {/* Section 1: 명예의 전당 👑 Main Top Header */}
-            <div className="border-b border-slate-200 pb-2 space-y-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-600 text-white shadow-sm">
-                    <Crown className="w-5 h-5 text-amber-200" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                      명예의 전당 👑
-                    </h2>
-                    <p className="text-[10px] text-slate-500 font-medium">
-                      📅 {startDateStr} ~ {endDateStr} ({totalMessages.toLocaleString()}개 대화)
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* 월급루팡 Card */}
-            <UnifiedSpecialCard
-              title={<span className="inline-flex items-center gap-1 text-xs"><span>월급루팡</span> <ThiefAvatarEmoji size={18} /></span>}
-              subtitle="근무시간(09시~18시) 대화 작성 건수가 가장 많은 닉네임"
-              icon={<Briefcase className="w-3.5 h-3.5 text-indigo-600" />}
+              title="월급루팡"
+              subtitle="근무시간(09시~18시) 대화 작성 건수가 가장 많은 사람"
+              icon={<ThiefAvatarEmoji size={18} />}
               users={salaryLupin}
-              metricFormatter={(u) => `${u.workHourMessages}회`}
+              metricFormatter={(u) => `${u.workHourMessages}개`}
               category="lupin"
               getExamples={() => []}
               emptyText="근무시간 내 메시지가 없습니다."
             />
 
-            {/* 댓글알바 Card */}
             <UnifiedSpecialCard
-              title={
-                <span className="inline-flex items-center gap-1 text-xs">
-                  <span>댓글알바</span>
-                  <CommentAlbaRobotEmoji size={18} />
-                </span>
-              }
-              subtitle="다른 사람 대화에 댓글/답글을 가장 많이 남긴 닉네임"
-              icon={<MessageSquare className="w-3.5 h-3.5 text-indigo-600" />}
+              title="댓글알바"
+              subtitle="다른 사람 대화에 댓글/답글을 가장 많이 남긴 사람"
+              icon={<CommentAlbaRobotEmoji size={18} />}
               users={commentAlba}
-              metricFormatter={(u) => `댓글 ${u.commentCount}개`}
+              metricFormatter={(u) => `${u.commentCount}개`}
               category="comment"
               getExamples={() => []}
               emptyText="댓글/답글 작성 데이터가 부족합니다."
             />
+          </div>
+        </div>
 
-            {/* Section 2: 대화 성향 분석 📈 Main Header */}
-            <div className="border-b border-slate-200 pb-2 pt-1 space-y-1">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <div className="p-2 rounded-xl bg-gradient-to-tr from-indigo-600 to-purple-600 text-white shadow-sm">
-                    <Crown className="w-5 h-5 text-amber-200" />
-                  </div>
-                  <div>
-                    <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                      대화 성향 분석 📈
-                    </h2>
-                  </div>
+        {/* 🌅 PAGE 3 (명예의 전당 Part 2): 미라클 도비, 랜선 여포 */}
+        <div
+          ref={(el) => { capturePageRefs.current[2] = el; }}
+          className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
+        >
+          {/* Top Header Bar */}
+          <div className="border-b border-slate-200 pb-2.5 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <HallOfFameEmoji size={28} /> 명예의 전당
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          {/* Body: 2 Special Cards (미라클 도비, 랜선 여포) */}
+          <div className="space-y-3 flex-shrink-0">
+            <UnifiedSpecialCard
+              title="미라클 도비"
+              subtitle="아침 개같은거 또 왔네"
+              icon={<MiracleDobbyEmoji size={18} />}
+              users={miracleDobby}
+              metricFormatter={(u) => `${u.morningCount}개`}
+              category="morning"
+              getExamples={() => []}
+              emptyText="아침 인사(모닝/몬잉/머닝) 사용자가 없거나 부족합니다."
+            />
+
+            <UnifiedSpecialCard
+              title="랜선 여포"
+              subtitle="비속어·욕설 사용 건수가 가장 많은 사람"
+              icon={<KeyboardWarriorEmoji size={18} />}
+              users={keyboardWarrior}
+              metricFormatter={(u) => `${u.profanityCount}개`}
+              category="keyboard"
+              getExamples={(u) => u.profanityExamples || []}
+              emptyText="데이터 부족"
+            />
+          </div>
+        </div>
+
+        {/* 😭 PAGE 4 (명예의 전당 Part 3): 앙앙이, 물음표 살인마 */}
+        <div
+          ref={(el) => { capturePageRefs.current[3] = el; }}
+          className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
+        >
+          {/* Top Header Bar */}
+          <div className="border-b border-slate-200 pb-2.5 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <HallOfFameEmoji size={28} /> 명예의 전당
+                </h3>
+              </div>
+            </div>
+          </div>
+
+          {/* Body: 2 Special Cards (앙앙이, 물음표 살인마) */}
+          <div className="space-y-3 flex-shrink-0">
+            <UnifiedSpecialCard
+              title="앙앙이"
+              subtitle="대화 중 눈물을 가장 많이 흘린 사람"
+              icon={<AngangEmoji size={18} />}
+              users={angangEmoji}
+              metricFormatter={(u) => `${u.cryingCount}개`}
+              category="angang"
+              getExamples={(u) => u.cryingExamples || []}
+              emptyText="ㅠㅠ/ㅜㅜ 사용자가 없거나 부족합니다."
+            />
+
+            <UnifiedSpecialCard
+              title="물음표 살인마"
+              subtitle="대화 중 '?'를 가장 많이 사용한 사람"
+              icon={<QuestionEmoji size={18} />}
+              users={questionKiller}
+              metricFormatter={(u) => `${u.questionCount}개`}
+              category="question"
+              getExamples={(u) => u.questionExamples || []}
+              emptyText="물음표(?) 사용자가 없거나 부족합니다."
+            />
+          </div>
+        </div>
+
+        {/* 📈 PAGE 5 (대화 성향 분석 독립 페이지): ChatCharts */}
+        <div
+          ref={(el) => { capturePageRefs.current[4] = el; }}
+          className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
+        >
+          {/* Top Header Bar */}
+          <div className="border-b border-slate-200 pb-3 space-y-1.5 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
+                  <CrystalBallEmoji size={30} />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+                    대화 성향 분석
+                  </h2>
                 </div>
               </div>
             </div>
-
-            {/* ChatCharts */}
-            <ChatCharts parsingResult={parsingResult} isCapture={true} />
           </div>
 
-          {/* Footer */}
-          <div className="pt-2 flex items-center justify-between text-[10px] text-slate-400 border-t border-slate-200 font-mono">
-            <span>💬 KakaoTalk Mobile Analytics Report</span>
-            <span>3 / {totalPages} (명예의 전당 & 대화 성향 분석 카드)</span>
+          {/* Body: ChatCharts */}
+          <div className="flex-shrink-0 break-inside-avoid pt-1">
+            <ChatCharts parsingResult={parsingResult} />
           </div>
         </div>
       </div>
@@ -749,6 +773,135 @@ ${formatHabits(userStats)}
           </button>
         </div>
       </div>
+
+      {/* 🔝 맨 위로 이동 버튼 (웹 전용) */}
+      <button
+        onClick={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}
+        className="w-full py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.99] cursor-pointer mt-3 group"
+      >
+        <ChevronUp className="w-4 h-4 text-slate-500 group-hover:text-slate-800 transition-transform group-hover:-translate-y-0.5" />
+        <span>맨 위로 올라가기</span>
+      </button>
+    </div>
+  );
+}
+
+function UnifiedKeyboardExamplesList({
+  group,
+  category,
+}: {
+  group: {
+    rank: number;
+    count?: number;
+    users: UserStat[];
+    examples: { nickname: string; content: string }[];
+  };
+  category: 'keyboard' | 'angang' | 'question' | 'morning';
+}) {
+  const [expandedUserNicknames, setExpandedUserNicknames] = React.useState<Record<string, boolean>>({});
+
+  const toggleUserExpanded = (nickname: string) => {
+    setExpandedUserNicknames((prev) => ({
+      ...prev,
+      [nickname]: !prev[nickname],
+    }));
+  };
+
+  const userExamplesMap = React.useMemo(() => {
+    return group.users.map((u) => {
+      const userExs = group.examples.filter((ex) => ex.nickname === u.nickname);
+      return {
+        user: u,
+        examples: userExs,
+      };
+    });
+  }, [group]);
+
+  const palettes = category === 'keyboard' ? [
+    { bg: 'bg-rose-50/95 border-rose-200/90', badge: 'text-rose-950', quote: 'text-rose-600', color: 'rose' },
+    { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', quote: 'text-amber-600', color: 'amber' },
+    { bg: 'bg-orange-50/95 border-orange-200/90', badge: 'text-orange-950', quote: 'text-orange-600', color: 'orange' },
+    { bg: 'bg-fuchsia-50/95 border-fuchsia-200/90', badge: 'text-fuchsia-950', quote: 'text-fuchsia-600', color: 'fuchsia' },
+  ] : category === 'angang' ? [
+    { bg: 'bg-sky-50/95 border-sky-200/90', badge: 'text-sky-950', quote: 'text-sky-600', color: 'sky' },
+    { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', quote: 'text-amber-600', color: 'amber' },
+    { bg: 'bg-teal-50/95 border-teal-200/90', badge: 'text-teal-950', quote: 'text-teal-600', color: 'teal' },
+    { bg: 'bg-fuchsia-50/95 border-fuchsia-200/90', badge: 'text-fuchsia-950', quote: 'text-fuchsia-600', color: 'fuchsia' },
+  ] : category === 'question' ? [
+    { bg: 'bg-purple-50/95 border-purple-200/90', badge: 'text-purple-950', quote: 'text-purple-600', color: 'purple' },
+    { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', quote: 'text-amber-600', color: 'amber' },
+    { bg: 'bg-fuchsia-50/95 border-fuchsia-200/90', badge: 'text-fuchsia-950', quote: 'text-fuchsia-600', color: 'fuchsia' },
+    { bg: 'bg-teal-50/95 border-teal-200/90', badge: 'text-teal-950', quote: 'text-teal-600', color: 'teal' },
+  ] : [
+    { bg: 'bg-emerald-50/95 border-emerald-200/90', badge: 'text-emerald-950', quote: 'text-emerald-600', color: 'emerald' },
+    { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', quote: 'text-amber-600', color: 'amber' },
+    { bg: 'bg-lime-50/95 border-lime-200/90', badge: 'text-lime-950', quote: 'text-lime-600', color: 'lime' },
+    { bg: 'bg-teal-50/95 border-teal-200/90', badge: 'text-teal-950', quote: 'text-teal-600', color: 'teal' },
+  ];
+
+
+  return (
+    <div className="space-y-1.5 pt-0.5">
+      {userExamplesMap.map((uItem, uIdx) => {
+        const isUserExpanded = !!expandedUserNicknames[uItem.user.nickname];
+        const visibleExs = isUserExpanded ? uItem.examples : uItem.examples.slice(0, 3);
+        const style = palettes[uIdx % palettes.length];
+        const uTotal = uItem.examples.length;
+        const uHasMore = uTotal > 3;
+        const uRemaining = uTotal - 3;
+
+        if (visibleExs.length === 0) return null;
+
+        return (
+          <div key={uItem.user.nickname} className="space-y-1">
+            {visibleExs.map((exItem, exIdx) => {
+              const isLastEx = exIdx === visibleExs.length - 1;
+
+              return (
+                <div
+                  key={`${exItem.nickname}-${exIdx}`}
+                  className={`border rounded-lg p-1.5 text-[9px] text-slate-800 leading-relaxed font-medium break-all flex items-start justify-between gap-1 ${style.bg} ${!isUserExpanded ? 'line-clamp-2' : ''}`}
+                >
+                  <div className="flex-1 min-w-0">
+                    <Quote className={`w-2.5 h-2.5 inline mr-1 flex-shrink-0 ${style.quote}`} />
+                    <span className={`font-black mr-1 ${style.badge}`}>[{exItem.nickname}]:</span>
+                    {category === 'angang' ? (
+                      <HighlightedCryingText text={exItem.content} customColor={style.color} />
+                    ) : category === 'question' ? (
+                      <HighlightedQuestionText text={exItem.content} customColor={style.color} />
+                    ) : category === 'morning' ? (
+                      <HighlightedMorningText text={exItem.content} customColor={style.color} />
+                    ) : (
+                      <HighlightedProfanityText text={exItem.content} customColor={style.color} />
+                    )}
+                  </div>
+
+                  {isLastEx && uHasMore && (
+                    <button
+                      onClick={() => toggleUserExpanded(uItem.user.nickname)}
+                      className={`ml-1 flex-shrink-0 text-[8px] font-black flex items-center gap-0.5 hover:underline cursor-pointer active:scale-95 transition-all self-end ${style.quote}`}
+                    >
+                      {isUserExpanded ? (
+                        <>
+                          <span>접기</span>
+                          <ChevronUp className="w-2.5 h-2.5" />
+                        </>
+                      ) : (
+                        <>
+                          <span>더보기 ({uRemaining}개)</span>
+                          <ChevronDown className="w-2.5 h-2.5" />
+                        </>
+                      )}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      })}
     </div>
   );
 }
@@ -769,18 +922,22 @@ function UnifiedSpecialCard({
   icon: React.ReactNode;
   users: UserStat[];
   metricFormatter: (u: UserStat) => string;
-  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment';
+  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'angang' | 'question';
   getExamples: (u: UserStat) => string[];
   emptyText: string;
 }) {
-  const displayUsers = users ? (category === 'keyboard' ? users : users.slice(0, 3)) : [];
+  const isKeyboard = category === 'keyboard';
+  const isAngang = category === 'angang';
+  const isQuestion = category === 'question';
+  const isMorning = category === 'morning';
+  const displayUsers = users || [];
   const medals = ['🥇 1위', '🥈 2위', '🥉 3위'];
 
   return (
     <div className="rounded-2xl border bg-slate-50 border-slate-200 p-3 space-y-2 transition-all shadow-xs overflow-hidden box-border">
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-xl bg-white border border-slate-200 text-indigo-600 shadow-2xs">
+        <div className="flex items-center gap-2.5">
+          <div className="flex-shrink-0 flex items-center justify-center">
             {icon}
           </div>
           <div>
@@ -795,38 +952,38 @@ function UnifiedSpecialCard({
       </div>
 
       {displayUsers.length > 0 ? (
-        category === 'keyboard' ? (
+        (isKeyboard || isAngang || isQuestion || isMorning) ? (
           <div className="space-y-1.5">
             {(() => {
-              const groupMap = new Map<number, { rank: number; profanityCount: number; users: UserStat[]; examples: { nickname: string; content: string }[] }>();
+              const groupMap = new Map<number, { rank: number; count: number; users: UserStat[]; examples: { nickname: string; content: string }[] }>();
 
               displayUsers.forEach((u) => {
-                const r = u.profanityRank || 1;
+                const r = isKeyboard ? (u.profanityRank || 1) : isAngang ? (u.cryingRank || 1) : isMorning ? (u.morningRank || 1) : (u.questionRank || 1);
+                const cnt = isKeyboard ? u.profanityCount : isAngang ? u.cryingCount : isMorning ? u.morningCount : u.questionCount;
+                const exList = isKeyboard ? u.profanityExamples : isAngang ? u.cryingExamples : isMorning ? u.morningExamples : u.questionExamples;
+
                 if (!groupMap.has(r)) {
                   groupMap.set(r, {
                     rank: r,
-                    profanityCount: u.profanityCount,
+                    count: cnt,
                     users: [],
                     examples: [],
                   });
                 }
                 const group = groupMap.get(r)!;
                 group.users.push(u);
-                if (u.profanityExamples) {
-                  u.profanityExamples.forEach((ex) => {
-                    if (!group.examples.some((e) => e.nickname === u.nickname && e.content === ex)) {
-                      group.examples.push({ nickname: u.nickname, content: ex });
-                    }
+                if (exList) {
+                  exList.forEach((ex) => {
+                    group.examples.push({ nickname: u.nickname, content: ex });
                   });
                 }
               });
 
-              const keyboardGroups = Array.from(groupMap.values()).sort((a, b) => a.rank - b.rank);
+              const specialGroups = Array.from(groupMap.values()).sort((a, b) => a.rank - b.rank).slice(0, 3);
 
-              return keyboardGroups.map((group) => {
+              return specialGroups.map((group) => {
                 const isTie = group.users.length > 1;
                 const nicknamesStr = group.users.map((u) => u.nickname).join(', ');
-                const isFirst = group.rank === 1;
                 const bgStyle = 'bg-white border-slate-200 text-slate-900';
                 const medalPrefix = group.rank === 1 ? '🥇 ' : group.rank === 2 ? '🥈 ' : group.rank === 3 ? '🥉 ' : '';
                 const rankText = isTie
@@ -834,6 +991,8 @@ function UnifiedSpecialCard({
                   : group.rank <= 3
                   ? medals[group.rank - 1]
                   : `🏅 ${group.rank}위`;
+
+                const metricText = `${group.count}개`;
 
                 return (
                   <div key={`share-group-${group.rank}`} className="space-y-1">
@@ -848,36 +1007,12 @@ function UnifiedSpecialCard({
                       </div>
 
                       <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded border flex-shrink-0 whitespace-nowrap self-center inline-block bg-slate-50 text-slate-700 border-slate-200">
-                        비속어 {group.profanityCount}건
+                        {metricText}
                       </span>
                     </div>
 
                     {group.examples.length > 0 && (
-                      <div className="space-y-1 pt-0.5">
-                        {group.examples.slice(0, 5 * group.users.length).map((exItem, exIdx) => {
-                          const userIdx = group.users.findIndex((u) => u.nickname === exItem.nickname);
-                          const palettes = [
-                            { bg: 'bg-indigo-50/95 border-indigo-200/90', badge: 'text-indigo-950', quote: 'text-indigo-600' },
-                            { bg: 'bg-emerald-50/95 border-emerald-200/90', badge: 'text-emerald-950', quote: 'text-emerald-600' },
-                            { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', quote: 'text-amber-600' },
-                            { bg: 'bg-rose-50/95 border-rose-200/90', badge: 'text-rose-950', quote: 'text-rose-600' },
-                            { bg: 'bg-purple-50/95 border-purple-200/90', badge: 'text-purple-950', quote: 'text-purple-600' },
-                            { bg: 'bg-teal-50/95 border-teal-200/90', badge: 'text-teal-950', quote: 'text-teal-600' },
-                          ];
-                          const style = palettes[(userIdx >= 0 ? userIdx : 0) % palettes.length];
-
-                          return (
-                            <div
-                              key={exIdx}
-                              className={`border rounded-lg p-1.5 text-[9px] text-slate-800 leading-relaxed font-medium break-all ${style.bg}`}
-                            >
-                              <Quote className={`w-2.5 h-2.5 inline mr-1 flex-shrink-0 ${style.quote}`} />
-                              <span className={`font-black mr-1 ${style.badge}`}>[{exItem.nickname}]:</span>
-                              <HighlightedProfanityText text={exItem.content} />
-                            </div>
-                          );
-                        })}
-                      </div>
+                      <UnifiedKeyboardExamplesList group={group} category={category} />
                     )}
                   </div>
                 );
@@ -936,9 +1071,40 @@ function UnifiedSpecialCard({
   );
 }
 
+function getShareMarkClass(color: string | undefined, defaultCategory: string) {
+  const c = color || (defaultCategory === 'keyboard' ? 'rose' : defaultCategory === 'angang' ? 'sky' : defaultCategory === 'question' ? 'purple' : defaultCategory === 'morning' ? 'emerald' : 'indigo');
+  const px = (defaultCategory === 'keyboard' || defaultCategory === 'morning') ? 'px-0' : 'px-0.5';
+
+  switch (c) {
+    case 'rose':
+      return `bg-rose-200/90 text-rose-950 ${px} py-0.5 rounded-xs font-black border-b border-rose-400`;
+    case 'sky':
+      return `bg-sky-200/90 text-sky-950 ${px} py-0.5 rounded-xs font-black border-b border-sky-400`;
+    case 'amber':
+      return `bg-amber-200/90 text-amber-950 ${px} py-0.5 rounded-xs font-black border-b border-amber-400`;
+    case 'emerald':
+      return `bg-emerald-200/90 text-emerald-950 ${px} py-0.5 rounded-xs font-black border-b border-emerald-400`;
+    case 'purple':
+      return `bg-purple-200/90 text-purple-950 ${px} py-0.5 rounded-xs font-black border-b border-purple-400`;
+    case 'fuchsia':
+      return `bg-fuchsia-200/90 text-fuchsia-950 ${px} py-0.5 rounded-xs font-black border-b border-fuchsia-400`;
+    case 'teal':
+      return `bg-teal-200/90 text-teal-950 ${px} py-0.5 rounded-xs font-black border-b border-teal-400`;
+    case 'orange':
+      return `bg-orange-200/90 text-orange-950 ${px} py-0.5 rounded-xs font-black border-b border-orange-400`;
+    case 'lime':
+      return `bg-lime-200/90 text-lime-950 ${px} py-0.5 rounded-xs font-black border-b border-lime-400`;
+    case 'cyan':
+      return `bg-cyan-200/90 text-cyan-950 ${px} py-0.5 rounded-xs font-black border-b border-cyan-400`;
+    default:
+      return `bg-indigo-200/90 text-indigo-950 ${px} py-0.5 rounded-xs font-black border-b border-indigo-400`;
+  }
+}
+
 // 헐크 비속어 하이라이트 (px-0 적용)
-function HighlightedProfanityText({ text }: { text: string }) {
+function HighlightedProfanityText({ text, customColor }: { text: string; customColor?: string }) {
   const parts = text.split(PROFANITY_REGEX);
+  const markClassName = getShareMarkClass(customColor, 'keyboard');
 
   return (
     <span>
@@ -950,13 +1116,124 @@ function HighlightedProfanityText({ text }: { text: string }) {
           return (
             <mark
               key={i}
-              className="bg-amber-200/90 text-amber-950 px-0 py-0.5 rounded-xs font-black border-b border-amber-400"
+              className={markClassName}
             >
               {part}
             </mark>
           );
         }
         return part;
+      })}
+    </span>
+  );
+}
+
+const MORNING_HIGHLIGHT_REGEX = /(모닝|몬잉|머닝)/gi;
+
+// 미라클 도비 아침 인사 하이라이트
+function HighlightedMorningText({ text, customColor }: { text: string; customColor?: string }) {
+  const parts = text.split(MORNING_HIGHLIGHT_REGEX);
+  const markClassName = getShareMarkClass(customColor, 'morning');
+
+  return (
+    <span>
+      {parts.map((part, i) => {
+        const isMatch = MORNING_HIGHLIGHT_REGEX.test(part);
+        MORNING_HIGHLIGHT_REGEX.lastIndex = 0;
+
+        if (isMatch) {
+          return (
+            <mark
+              key={i}
+              className={markClassName}
+            >
+              {part}
+            </mark>
+          );
+        }
+        return part;
+      })}
+    </span>
+  );
+}
+
+const CRYING_REGEX = /([ㅠㅜ]{2,})/g;
+
+// 앙앙이 ㅠㅠ/ㅜㅜ 하이라이트
+function HighlightedCryingText({ text, customColor }: { text: string; customColor?: string }) {
+  const parts = text.split(CRYING_REGEX);
+  const markClassName = getShareMarkClass(customColor, 'angang');
+
+  return (
+    <span>
+      {parts.map((part, i) => {
+        const isMatch = CRYING_REGEX.test(part);
+        CRYING_REGEX.lastIndex = 0;
+
+        if (isMatch) {
+          return (
+            <mark
+              key={i}
+              className={markClassName}
+            >
+              {part}
+            </mark>
+          );
+        }
+        return part;
+      })}
+    </span>
+  );
+}
+
+// 물음표 살인마 ? 하이라이트 (링크/URL 내 ? 및 감탄/리액션 표현 '오?', '오호?', '아?', '어?', '(?)' 제외)
+function HighlightedQuestionText({ text, customColor }: { text: string; customColor?: string }) {
+  const urlRegex = /(https?:\/\/[^\s]+|www\.[^\s]+)/gi;
+  const parts = text.split(urlRegex);
+  const markClassName = getShareMarkClass(customColor, 'question');
+
+  return (
+    <span>
+      {parts.map((part, i) => {
+        if (!part) return null;
+        const isUrl = /(https?:\/\/[^\s]+|www\.[^\s]+)/i.test(part);
+        if (isUrl) {
+          return <React.Fragment key={i}>{part}</React.Fragment>;
+        }
+
+        const reactionQuestionRegex = /((?:오호|오|아|어|음|엥|응|읭|잉|하|허)[\?!]+|\(\?+\))/gi;
+        const subParts = part.split(reactionQuestionRegex);
+
+        return (
+          <React.Fragment key={i}>
+            {subParts.map((sub, j) => {
+              if (reactionQuestionRegex.test(sub)) {
+                reactionQuestionRegex.lastIndex = 0;
+                return <React.Fragment key={j}>{sub}</React.Fragment>;
+              }
+              reactionQuestionRegex.lastIndex = 0;
+
+              const qParts = sub.split(/(\?+)/g);
+              return (
+                <React.Fragment key={j}>
+                  {qParts.map((qSub, k) => {
+                    if (qSub.startsWith('?')) {
+                      return (
+                        <mark
+                          key={k}
+                          className={markClassName}
+                        >
+                          {qSub}
+                        </mark>
+                      );
+                    }
+                    return qSub;
+                  })}
+                </React.Fragment>
+              );
+            })}
+          </React.Fragment>
+        );
       })}
     </span>
   );

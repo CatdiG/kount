@@ -40,45 +40,16 @@ export function ChatDataProvider({ children }: { children: React.ReactNode }) {
   const [userFileName, setUserFileName] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  // Rehydrate state from localStorage on mount and sync across windows/tabs
+  // Clear any leftover cached state from storage on mount so refresh (F5) always resets to initial state
   useEffect(() => {
-    const loadFromStorage = () => {
-      try {
-        const cachedText = localStorage.getItem('kount_cached_chat_text');
-        const cachedFileName = localStorage.getItem('kount_active_filename');
-
-        if (cachedText && cachedFileName) {
-          const { messages, diag } = parseKakaoTalkTextWithDiag(cachedText);
-          const result = calculateChatStats(messages);
-          setUserMessages(messages);
-          setUserDiag(diag);
-          setUserResult(result);
-          setUserFileName(cachedFileName);
-          setIsUserUploaded(true);
-        } else {
-          setIsUserUploaded(false);
-          setUserMessages([]);
-          setUserResult(null);
-          setUserDiag(null);
-          setUserFileName('');
-        }
-      } catch (err) {
-        console.warn('Failed to load cached chat data from storage:', err);
-      }
-    };
-
-    loadFromStorage();
-
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'kount_cached_chat_text' || e.key === 'kount_active_filename') {
-        loadFromStorage();
-      }
-    };
-
-    window.addEventListener('storage', handleStorageChange);
-    return () => {
-      window.removeEventListener('storage', handleStorageChange);
-    };
+    try {
+      localStorage.removeItem('kount_active_filename');
+      localStorage.removeItem('kount_cached_chat_text');
+      sessionStorage.removeItem('kount_active_filename');
+      sessionStorage.removeItem('kount_cached_chat_text');
+    } catch {
+      // Ignore storage errors
+    }
   }, []);
 
   // Active getters: Return user uploaded data if uploaded, otherwise return fixed sample data
@@ -101,15 +72,6 @@ export function ChatDataProvider({ children }: { children: React.ReactNode }) {
           setUserResult(result);
           setUserFileName(fileName);
           setIsUserUploaded(true);
-
-          if (rawText.length < 15000000) {
-            try {
-              localStorage.setItem('kount_active_filename', fileName);
-              localStorage.setItem('kount_cached_chat_text', rawText);
-            } catch {
-              // Ignore storage full errors
-            }
-          }
         }
       } catch (err) {
         console.error('Failed to parse chat data:', err);
@@ -128,6 +90,8 @@ export function ChatDataProvider({ children }: { children: React.ReactNode }) {
     try {
       localStorage.removeItem('kount_active_filename');
       localStorage.removeItem('kount_cached_chat_text');
+      sessionStorage.removeItem('kount_active_filename');
+      sessionStorage.removeItem('kount_cached_chat_text');
     } catch {
       // Ignore
     }

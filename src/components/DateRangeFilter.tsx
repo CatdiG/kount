@@ -26,6 +26,44 @@ export default function DateRangeFilter({
 }: DateRangeFilterProps) {
   const [selectedPreset, setSelectedPreset] = useState<PresetType | null>(null);
 
+  const format = (d: Date) => {
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+
+  // Today-based Last Week Calculation (Monday ~ Sunday)
+  const lastWeekRange = useMemo(() => {
+    const today = new Date();
+    const dayOfWeek = today.getDay(); // 0 = Sun, 1 = Mon, ..., 6 = Sat
+
+    // Calculate distance back to this week's Monday
+    const distanceToThisMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
+    const thisMonday = new Date(today);
+    thisMonday.setDate(today.getDate() - distanceToThisMonday);
+
+    // Last week Monday = this week Monday - 7 days
+    const lastMonday = new Date(thisMonday);
+    lastMonday.setDate(thisMonday.getDate() - 7);
+
+    // Last week Sunday = last week Monday + 6 days
+    const lastSunday = new Date(lastMonday);
+    lastSunday.setDate(lastMonday.getDate() + 6);
+
+    const startStr = format(lastMonday);
+    const endStr = format(lastSunday);
+
+    const startMonth = lastMonday.getMonth() + 1;
+    const startDateNum = lastMonday.getDate();
+    const endMonth = lastSunday.getMonth() + 1;
+    const endDateNum = lastSunday.getDate();
+
+    const label = `저번 주 (${startMonth}.${startDateNum}~${endMonth}.${endDateNum})`;
+
+    return { startStr, endStr, label };
+  }, []);
+
   // Sync active preset state with current startDate / endDate props
   const activePreset = useMemo<PresetType | null>(() => {
     if (!startDate && !endDate) {
@@ -34,17 +72,13 @@ export default function DateRangeFilter({
     if (startDate === minDateStr && endDate === maxDateStr) {
       return 'all';
     }
+    if (startDate === lastWeekRange.startStr && endDate === lastWeekRange.endStr) {
+      return 'lastWeek';
+    }
     return selectedPreset || 'custom';
-  }, [startDate, endDate, minDateStr, maxDateStr, selectedPreset]);
+  }, [startDate, endDate, minDateStr, maxDateStr, selectedPreset, lastWeekRange]);
 
   if (!minDateStr || !maxDateStr || minDateStr === '-') return null;
-
-  const format = (d: Date) => {
-    const year = d.getFullYear();
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const day = String(d.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   // Preset Handlers
   const handlePreset = (type: PresetType) => {
@@ -56,23 +90,7 @@ export default function DateRangeFilter({
     }
 
     if (type === 'lastWeek') {
-      const refDate = maxDateStr ? new Date(maxDateStr) : new Date();
-      const dayOfWeek = refDate.getDay();
-
-      const distanceToThisMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1;
-      const thisMonday = new Date(refDate);
-      thisMonday.setDate(refDate.getDate() - distanceToThisMonday);
-
-      const lastMonday = new Date(thisMonday);
-      lastMonday.setDate(thisMonday.getDate() - 7);
-
-      const lastSunday = new Date(lastMonday);
-      lastSunday.setDate(lastMonday.getDate() + 6);
-
-      const startStr = format(lastMonday);
-      const endStr = format(lastSunday);
-
-      onRangeChange(startStr, endStr);
+      onRangeChange(lastWeekRange.startStr, lastWeekRange.endStr);
       return;
     }
 

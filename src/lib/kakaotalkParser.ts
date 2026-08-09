@@ -37,6 +37,95 @@ export function isExplicitKakaoSystemAction(content: string): boolean {
 }
 
 /**
+ * Strict validator for KakaoTalk member nicknames.
+ * Filters out system notices, meta headers, message body fragments (e.g. "충분한 수분 섭취"),
+ * bullet points, and invalid nicknames.
+ */
+export function isValidKakaoNickname(nickname: string): boolean {
+  if (!nickname) return false;
+  const t = nickname.trim();
+
+  // Length check: KakaoTalk nicknames must be 1 ~ 40 characters
+  if (t.length === 0 || t.length > 40) return false;
+
+  // System headers / Export metadata keywords
+  if (
+    t.startsWith('저장한 날짜') ||
+    t.startsWith('Date saved') ||
+    t.startsWith('저장 일시') ||
+    t.startsWith('Date,User') ||
+    t.startsWith('Date, User') ||
+    t.startsWith('일시, 이름') ||
+    t.startsWith('날짜,사용자') ||
+    t.includes('카카오톡 대화') ||
+    t.includes('KakaoTalk Chats') ||
+    t.includes('대화 내보내기')
+  ) {
+    return false;
+  }
+
+  // System actions (Join, Leave, Kick, Delete, etc.)
+  if (
+    t.includes('님이 들어왔습니다') ||
+    t.includes('님이 나갔습니다') ||
+    t.includes('님을 초대했습니다') ||
+    t.includes('내보냈습니다') ||
+    t.includes('삭제된 메시지') ||
+    t.includes('운영정책') ||
+    t.includes('불법촬영물') ||
+    t.includes('방장이') ||
+    t.includes('부방장이') ||
+    t.includes('위임했습니다')
+  ) {
+    return false;
+  }
+
+  // Common body text patterns & bullet point phrases mistakenly captured as nicknames
+  if (
+    t.includes('수분 섭취') ||
+    t.includes('수분섭취') ||
+    t.includes('참고사항') ||
+    t.includes('공지사항') ||
+    t.includes('유의사항') ||
+    t.includes('주의사항') ||
+    t.includes('체크리스트') ||
+    t.includes('가이드라인')
+  ) {
+    return false;
+  }
+
+  // Numbered list bullet points e.g., "1.", "2)", "3-", "Q1.", "A."
+  if (/^(?:\d+[\.\)\-:]|[QQAa]\d*[\.:])\s*/.test(t)) {
+    return false;
+  }
+
+  // URL or Email in nickname
+  if (/https?:\/\/|www\.|@/.test(t)) {
+    return false;
+  }
+
+  // Generic CSV / System column headers
+  const lower = t.toLowerCase();
+  if (
+    lower === 'date' ||
+    lower === 'user' ||
+    lower === 'message' ||
+    lower === 'text' ||
+    lower === 'time' ||
+    t === '날짜' ||
+    t === '이름' ||
+    t === '사용자' ||
+    t === '대화' ||
+    t === '내용' ||
+    t === '시간'
+  ) {
+    return false;
+  }
+
+  return true;
+}
+
+/**
  * Checks if an unparsed line (without [Nickname] [Time] prefix) is a standalone system header, notice, or banner.
  */
 export function isStandaloneSystemNoticeLine(line: string): boolean {
@@ -404,7 +493,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
     // (Ensures [이름/지역] [시간] 내용 or PC formats are ALWAYS captured as USER_CHAT)
     // -----------------------------------------------------------------------------
     const stdMatch = rawLine.match(standardKakaoRegex);
-    if (stdMatch) {
+    if (stdMatch && isValidKakaoNickname(stdMatch[1])) {
       pushCurrentMessage();
       stdMatchesCount++;
       const nickname = stdMatch[1];
@@ -421,7 +510,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
       const dateObj = new Date(year, month, day, hour, minute);
 
       currentMessage = {
-        nickname,
+        nickname: nickname.trim(),
         timestamp: dateObj,
         dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
         timeStr: `${pad(hour)}:${pad(minute)}`,
@@ -432,7 +521,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
     // Check PC Nickname Before Time format: 홍길동 [오후 2:00] 안녕하세요
     const pcNickMatch = rawLine.match(pcNickBeforeTimeRegex);
-    if (pcNickMatch && !pcNickMatch[1].startsWith('저장') && !pcNickMatch[1].startsWith('Date')) {
+    if (pcNickMatch && isValidKakaoNickname(pcNickMatch[1])) {
       pushCurrentMessage();
       pcMatchesCount++;
       const nickname = pcNickMatch[1];
@@ -449,7 +538,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
       const dateObj = new Date(year, month, day, hour, minute);
 
       currentMessage = {
-        nickname,
+        nickname: nickname.trim(),
         timestamp: dateObj,
         dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
         timeStr: `${pad(hour)}:${pad(minute)}`,
@@ -460,7 +549,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
     // Check PC Dual Bracket Kakao format: [2026-08-03] [오후 2:00] 홍길동 : 안녕하세요
     const pcDualMatch = rawLine.match(pcDualBracketRegex);
-    if (pcDualMatch) {
+    if (pcDualMatch && isValidKakaoNickname(pcDualMatch[8])) {
       pushCurrentMessage();
       pcMatchesCount++;
       const year = parseInt(pcDualMatch[1], 10);
@@ -478,7 +567,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
       currentDate = { year, month, day };
       currentMessage = {
-        nickname,
+        nickname: nickname.trim(),
         timestamp: dateObj,
         dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
         timeStr: `${pad(hour)}:${pad(minute)}`,
@@ -489,7 +578,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
     // Check Full DateTime kakao line (Mobile & PC)
     const fullDateMatch = rawLine.match(fullDateKakaoRegex) || rawLine.match(fullDateKakaoKorRegex);
-    if (fullDateMatch) {
+    if (fullDateMatch && isValidKakaoNickname(fullDateMatch[8])) {
       pushCurrentMessage();
       fullDateMatchesCount++;
       const year = parseInt(fullDateMatch[1], 10);
@@ -507,7 +596,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
       currentDate = { year, month, day };
       currentMessage = {
-        nickname,
+        nickname: nickname.trim(),
         timestamp: dateObj,
         dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
         timeStr: `${pad(hour)}:${pad(minute)}`,
@@ -518,7 +607,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
     // Check Bracket DateTime line (format: [2026-08-02 18:15] Nickname : Content)
     const bracketMatch = rawLine.match(bracketDateKakaoRegex);
-    if (bracketMatch) {
+    if (bracketMatch && isValidKakaoNickname(bracketMatch[8])) {
       pushCurrentMessage();
       bracketMatchesCount++;
       const year = parseInt(bracketMatch[1], 10);
@@ -536,7 +625,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
       currentDate = { year, month, day };
       currentMessage = {
-        nickname,
+        nickname: nickname.trim(),
         timestamp: dateObj,
         dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
         timeStr: `${pad(hour)}:${pad(minute)}`,
@@ -547,7 +636,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
     // Check PC CSV Quoted format ("2026-08-03 14:00:05", "홍길동", "안녕하세요")
     const pcCsvMatch = rawLine.match(pcCsvExportRegex);
-    if (pcCsvMatch) {
+    if (pcCsvMatch && isValidKakaoNickname(pcCsvMatch[8])) {
       pushCurrentMessage();
       pcMatchesCount++;
       const year = parseInt(pcCsvMatch[1], 10);
@@ -565,7 +654,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
       currentDate = { year, month, day };
       currentMessage = {
-        nickname,
+        nickname: nickname.trim(),
         timestamp: dateObj,
         dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
         timeStr: `${pad(hour)}:${pad(minute)}`,
@@ -576,7 +665,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
 
     // Check Short Time Kakao Line (iOS / Android Mobile Plain saved chat)
     const iosShortMatch = rawLine.match(iosShortTimeRegex);
-    if (iosShortMatch) {
+    if (iosShortMatch && isValidKakaoNickname(iosShortMatch[5])) {
       pushCurrentMessage();
       shortTimeMatchesCount++;
       const ampm1 = iosShortMatch[1];
@@ -593,7 +682,7 @@ export function parseKakaoTalkTextWithDiag(text: string): {
       const dateObj = new Date(year, month, day, hour, minute);
 
       currentMessage = {
-        nickname,
+        nickname: nickname.trim(),
         timestamp: dateObj,
         dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
         timeStr: `${pad(hour)}:${pad(minute)}`,
@@ -602,29 +691,33 @@ export function parseKakaoTalkTextWithDiag(text: string): {
       continue;
     }
 
-    // CSV format line fallback (Date, User, Message)
+    // CSV format line fallback (Date, User, Message) - requires valid date in 1st col AND valid nickname in 2nd col
     if (rawLine.includes(',') && (rawLine.includes('오전') || rawLine.includes('오후') || rawLine.includes(':') || rawLine.includes('"'))) {
       const parts = rawLine.split(',');
       if (parts.length >= 3) {
-        const potentialUser = parts[1].replace(/"/g, '').trim();
-        const potentialContent = parts.slice(2).join(',').replace(/"/g, '').trim();
+        const potentialDateStr = parts[0].replace(/"/g, '').trim();
+        const dateMatch = potentialDateStr.match(/(\d{4})[./-](\d{1,2})[./-](\d{1,2})/);
+        if (dateMatch) {
+          const potentialUser = parts[1].replace(/"/g, '').trim();
+          const potentialContent = parts.slice(2).join(',').replace(/"/g, '').trim();
 
-        if (potentialUser && potentialContent && !potentialUser.startsWith('Date') && !potentialUser.startsWith('일시')) {
-          pushCurrentMessage();
-          csvMatchesCount++;
-          const year = currentDate ? currentDate.year : new Date().getFullYear();
-          const month = currentDate ? currentDate.month : new Date().getMonth();
-          const day = currentDate ? currentDate.day : new Date().getDate();
-          const dateObj = new Date(year, month, day, 12, 0);
+          if (potentialUser && potentialContent && isValidKakaoNickname(potentialUser)) {
+            pushCurrentMessage();
+            csvMatchesCount++;
+            const year = parseInt(dateMatch[1], 10);
+            const month = parseInt(dateMatch[2], 10) - 1;
+            const day = parseInt(dateMatch[3], 10);
+            const dateObj = new Date(year, month, day, 12, 0);
 
-          currentMessage = {
-            nickname: potentialUser,
-            timestamp: dateObj,
-            dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
-            timeStr: `12:00`,
-            contentLines: [potentialContent],
-          };
-          continue;
+            currentMessage = {
+              nickname: potentialUser,
+              timestamp: dateObj,
+              dateStr: `${year}-${pad(month + 1)}-${pad(day)}`,
+              timeStr: `12:00`,
+              contentLines: [potentialContent],
+            };
+            continue;
+          }
         }
       }
     }

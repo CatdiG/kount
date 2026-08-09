@@ -212,10 +212,10 @@ export default function OverallStatsTable({ userStats, totalMessages }: OverallS
                   <td className="py-2.5 px-3 text-right font-mono text-xs">
                     {u.profanityRatio > 0 ? (
                       <span className="text-red-600 font-bold">
-                        {u.profanityCount}건
+                        {u.profanityCount}개
                       </span>
                     ) : (
-                      <span className="text-slate-400">0건</span>
+                      <span className="text-slate-400">0개</span>
                     )}
                   </td>
 

@@ -2,7 +2,8 @@
 
 import React from 'react';
 import { UserStat } from '@/types/chat';
-import { Quote, MessageCircle } from 'lucide-react';
+import { Quote } from 'lucide-react';
+import { SpeechHabitEmoji } from '@/components/SpecialRankingsGrid';
 
 interface UserSpeechHabitsProps {
   userStats: UserStat[];
@@ -34,12 +35,12 @@ export default function UserSpeechHabits({ userStats }: UserSpeechHabitsProps) {
       {/* Title Header */}
       <div className="flex items-center justify-between border-b border-slate-200 pb-3">
         <div className="flex items-center gap-2.5">
-          <div className="p-2 rounded-xl bg-indigo-600 text-white shadow-xs">
-            <MessageCircle className="w-5 h-5 text-white" />
+          <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center">
+            <SpeechHabitEmoji size={42} />
           </div>
           <div>
-            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-              🗣️ 멤버별 대표 말버릇
+            <h2 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
+              멤버별 순위& 레퍼토리
             </h2>
             <p className="text-xs text-slate-500 font-medium">
               전체 멤버({userStats.length}명)의 입착어(Top 3 말버릇)와 대화 수치를 간결하게 한눈에 파악하세요.

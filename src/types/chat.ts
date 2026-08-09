@@ -22,6 +22,7 @@ export interface UserStat {
   replyCount: number;
   avgReplyTimeSeconds: number | null;
   avgReplyTimeFormatted: string;
+  pingPongRank?: number;
   pingPongExamples?: string[];
 
   // 키보드워리어 (Keyboard Warrior)
@@ -33,11 +34,27 @@ export interface UserStat {
   // 월급루팡 (Salary Lupin)
   workHourMessages: number; // 09:00 ~ 18:00
   workHourRatio: number; // (workHourMessages / totalMessages) * 100
+  salaryRank?: number;
   workHourExamples?: { timeStr: string; content: string }[];
 
   // 댓글알바 (Comment Alba)
   commentCount: number;
   commentRank?: number;
+
+  // 미라클 도비 (Miracle Dobby - Morning greetings ranking)
+  morningCount: number;
+  morningRank?: number;
+  morningExamples?: string[];
+
+  // 앙앙이 (Ang-ang-i - Crying emoji ranking)
+  cryingCount: number;
+  cryingRank?: number;
+  cryingExamples?: string[];
+
+  // 물음표 살인마 (Question Mark Killer)
+  questionCount: number;
+  questionRank?: number;
+  questionExamples?: string[];
 
   // Diversity stats
   uniqueWordsCount: number;
@@ -60,6 +77,9 @@ export interface SpecialRankings {
   keyboardWarrior: UserStat[];
   salaryLupin: UserStat[];
   commentAlba: UserStat[];
+  miracleDobby: UserStat[];
+  angangEmoji: UserStat[];
+  questionKiller: UserStat[];
 }
 
 export interface ParsingResult {
