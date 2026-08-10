@@ -1,8 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { UploadCloud, Sparkles, CheckCircle2 } from 'lucide-react';
-import { SAMPLE_KAKAOTALK_LOG } from '@/lib/sampleData';
+import { UploadCloud, CheckCircle2, Share2 } from 'lucide-react';
 import { checkAndRequestPermissions, readWebFileAsText } from '@/lib/filesystemUtils';
 
 interface FileUploaderProps {
@@ -58,22 +57,15 @@ export default function FileUploader({ onDataParsed }: FileUploaderProps) {
     setIsDragging(false);
   };
 
-  const handleSampleLoad = () => {
-    setLoadedFileName('kakaotalk_sample_1week.txt (샘플 대화)');
-    onDataParsed(SAMPLE_KAKAOTALK_LOG, 'kakaotalk_sample_1week.txt');
-  };
-
   return (
-    <div className="w-full max-w-4xl mx-auto my-6">
+    <div className="w-full max-w-md mx-auto my-4 text-center">
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onClick={() => fileInputRef.current?.click()}
-        className={`relative cursor-pointer rounded-2xl border-2 border-dashed p-5 sm:p-8 text-center transition-all duration-300 backdrop-blur-md ${
-          isDragging
-            ? 'border-indigo-500 bg-indigo-50/80 scale-[1.01] shadow-lg shadow-indigo-500/10'
-            : 'border-slate-300 bg-white/90 hover:border-indigo-400 hover:bg-slate-50/80 shadow-sm hover:shadow-md'
+        className={`relative cursor-pointer p-4 text-center space-y-4 transition-all duration-300 rounded-2xl ${
+          isDragging ? 'bg-amber-50/80 ring-2 ring-amber-400' : ''
         }`}
       >
         <input
@@ -88,52 +80,56 @@ export default function FileUploader({ onDataParsed }: FileUploaderProps) {
           }}
         />
 
-        <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="p-3.5 rounded-full bg-indigo-50 border border-indigo-200 text-indigo-600 shadow-xs">
-            <UploadCloud className="w-8 h-8 text-indigo-600 stroke-[2.5] animate-bounce" />
-          </div>
-
-          <div className="space-y-1.5">
-            <h3 className="text-sm sm:text-base md:text-lg font-extrabold text-slate-900 whitespace-nowrap tracking-tight">
-              카카오톡 대화 내용 파일 (.txt / .csv) 업로드
-            </h3>
-            <p className="text-xs text-slate-500 font-medium">
-              카카오톡 대화내용을 업로드 하여 대화 리포트를 생성해보세요.
-            </p>
-            <div className="pt-1">
-              <div className="inline-flex items-center gap-1 px-3 py-1 rounded-lg bg-indigo-50/80 border border-indigo-200/80 text-indigo-950 text-[11px] sm:text-xs font-bold shadow-2xs whitespace-nowrap">
-                <span>📁</span>
-                <span className="whitespace-nowrap">
-                  파일을 이 곳으로 <span className="text-indigo-600 font-extrabold underline underline-offset-2">드래그 앤 드롭</span> 하거나 클릭하여 선택하세요.
-                </span>
-              </div>
-            </div>
-          </div>
-
-
-
-          {statusMessage && (
-            <div
-              className={`flex items-center space-x-2 px-4 py-2 rounded-xl border font-bold text-xs sm:text-sm mt-2 ${
-                statusMessage.type === 'success'
-                  ? 'text-emerald-700 bg-emerald-50 border-emerald-300'
-                  : 'text-rose-700 bg-rose-50 border-rose-300'
-              }`}
-            >
-              <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
-              <span>{statusMessage.text}</span>
-            </div>
-          )}
-
-          {loadedFileName && !statusMessage && (
-            <div className="flex items-center space-x-2 text-emerald-700 bg-emerald-50 px-4 py-2 rounded-xl border border-emerald-200 font-medium text-sm mt-2">
-              <CheckCircle2 className="w-4 h-4" />
-              <span>성공: 분석 완료 ({loadedFileName})</span>
-            </div>
-          )}
+        {/* Bouncing Upload Icon */}
+        <div className="w-16 h-16 rounded-full bg-amber-100/90 border border-amber-300 flex items-center justify-center mx-auto text-amber-950 shadow-xs">
+          <UploadCloud className="w-8 h-8 text-amber-950 stroke-[2.5] animate-bounce" />
         </div>
-      </div>
 
+        {/* Text */}
+        <div className="space-y-1.5">
+          <h2 className="text-lg font-black text-slate-800 tracking-tight">
+            공유한 대화가 없습니다.
+          </h2>
+          <p className="text-xs sm:text-sm text-slate-500 font-medium whitespace-nowrap">
+            카카오톡 대화 내보내기 파일(.txt / .csv)을 업로드하거나 앱으로 공유해 주세요.
+          </p>
+        </div>
+
+        {/* Action Button & Drag hint */}
+        <div className="pt-2 space-y-2 text-center">
+          <button
+            type="button"
+            className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#FEE500] hover:bg-[#FDD800] text-[#191919] text-xs font-black shadow-sm transition-all active:scale-95 border border-amber-300 cursor-pointer"
+          >
+            <Share2 className="w-4 h-4 text-amber-950 flex-shrink-0" />
+            <span>카카오톡 대화 파일 선택하기</span>
+          </button>
+          <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
+            (또는 파일을 이 곳으로 드래그 앤 드롭 하세요)
+          </p>
+        </div>
+
+        {/* Status Messages */}
+        {statusMessage && (
+          <div
+            className={`flex items-center justify-center space-x-2 px-3 py-2 rounded-xl border font-bold text-xs mt-2 max-w-xs mx-auto ${
+              statusMessage.type === 'success'
+                ? 'text-emerald-700 bg-emerald-50 border-emerald-300'
+                : 'text-rose-700 bg-rose-50 border-rose-300'
+            }`}
+          >
+            <CheckCircle2 className="w-4 h-4 flex-shrink-0" />
+            <span>{statusMessage.text}</span>
+          </div>
+        )}
+
+        {loadedFileName && !statusMessage && (
+          <div className="flex items-center justify-center space-x-2 text-emerald-700 bg-emerald-50 px-3 py-2 rounded-xl border border-emerald-200 font-medium text-xs mt-2 max-w-xs mx-auto">
+            <CheckCircle2 className="w-4 h-4" />
+            <span>성공: 분석 완료 ({loadedFileName})</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

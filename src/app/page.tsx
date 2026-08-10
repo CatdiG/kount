@@ -1,18 +1,32 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import confetti from 'canvas-confetti';
 import { ParsingResult } from '@/types/chat';
 import FileUploader from '@/components/FileUploader';
 import DateRangeFilter from '@/components/DateRangeFilter';
 import SummaryCards from '@/components/SummaryCards';
 import KakaoTalkShareCard from '@/components/KakaoTalkShareCard';
-import { MessageSquare, RefreshCw, Shield } from 'lucide-react';
+import { RefreshCw, Shield } from 'lucide-react';
 import { readWebFileAsText } from '@/lib/filesystemUtils';
 import { useChatData } from '@/context/ChatDataContext';
 import { calculateChatStats } from '@/lib/statsCalculator';
 
+/**
+ * 🔑 [관리자 모드 (Admin Mode) 인증 및 접속 가이드]
+ * 일반 사용자 화면에서는 관리자 메뉴/버튼이 절대 표시되지 않습니다.
+ *
+ * 📌 관리자 모드 활성화 (ON) 테스트 방법 (3가지 중 편한 방법 사용):
+ * 1. URL 접속: 브라우저 주소창에 `http://localhost:3000/?admin=true` 로 접속
+ * 2. F12 개발자도구 콘솔: `enableKountAdmin()` 실행
+ * 3. 로컬스토리지 설정: `localStorage.setItem('kount_admin_auth', 'true')` 입력 후 새로고침
+ *
+ * 🔒 관리자 모드 비활성화 (OFF) 방법:
+ * 1. F12 개발자도구 콘솔: `disableKountAdmin()` 실행
+ * 2. 로컬스토리지 삭제: `localStorage.removeItem('kount_admin_auth')` 입력 후 새로고침
+ */
 export default function Home() {
   const {
     allMessages,
@@ -27,6 +41,45 @@ export default function Home() {
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
 
+  // Admin authorization state (hidden by default for regular users)
+  const [isAdminAuthorized, setIsAdminAuthorized] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const adminParam = params.get('admin');
+
+    // 1. URL 파라미터가 ?admin=false / ?admin=off / ?admin=clear 일 경우 로컬스토리지 인증 제거
+    if (adminParam === 'false' || adminParam === 'off' || adminParam === 'clear') {
+      localStorage.removeItem('kount_admin_auth');
+      setIsAdminAuthorized(false);
+    } 
+    // 2. URL 파라미터가 ?admin=true 또는 ?mode=admin 일 경우 로컬스토리지 인증 저장
+    else if (adminParam === 'true' || adminParam === '1' || params.get('mode') === 'admin') {
+      localStorage.setItem('kount_admin_auth', 'true');
+      setIsAdminAuthorized(true);
+    } 
+    // 3. 일반 접속 시 브라우저 로컬스토리지의 kount_admin_auth 검사
+    else {
+      const isAuth = localStorage.getItem('kount_admin_auth') === 'true';
+      setIsAdminAuthorized(isAuth);
+    }
+
+    // F12 개발자도구 콘솔 헬퍼 함수
+    (window as any).enableKountAdmin = () => {
+      localStorage.setItem('kount_admin_auth', 'true');
+      console.log('✅ [Kount] 관리자 인증이 활성화되었습니다.');
+      window.location.href = '/?admin=true';
+    };
+
+    (window as any).disableKountAdmin = () => {
+      localStorage.removeItem('kount_admin_auth');
+      console.log('🔒 [Kount] 관리자 인증이 해제되었습니다.');
+      window.location.href = '/?admin=clear';
+    };
+  }, []);
+
   const handleProcessText = (rawText: string, fileName: string, triggerConfetti = true) => {
     setStartDate('');
     setEndDate('');
@@ -40,9 +93,9 @@ export default function Home() {
     }
   };
 
-  // Date-filtered calculation
+  // Date-filtered calculation (User Mode only calculates when user uploaded data exists)
   const parsingResult: ParsingResult | null = useMemo(() => {
-    if (!allMessages || allMessages.length === 0) return null;
+    if (!isUserUploaded || !allMessages || allMessages.length === 0) return null;
 
     if (!startDate && !endDate) {
       return rawParsingResult;
@@ -53,29 +106,11 @@ export default function Home() {
     );
 
     return calculateChatStats(filtered);
-  }, [allMessages, rawParsingResult, startDate, endDate]);
+  }, [isUserUploaded, allMessages, rawParsingResult, startDate, endDate]);
 
   const handleRangeChange = (newStart: string, newEnd: string) => {
     setStartDate(newStart);
     setEndDate(newEnd);
-  };
-
-  const handleFileSelect = () => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = '.txt,.csv';
-    input.onchange = async (e: any) => {
-      const file = e.target.files[0];
-      if (file) {
-        try {
-          const content = await readWebFileAsText(file);
-          handleProcessText(content, file.name, true);
-        } catch (err: any) {
-          alert(`[파일 읽기 실패]\n${err?.message || String(err)}`);
-        }
-      }
-    };
-    input.click();
   };
 
   const handleResetToSample = () => {
@@ -84,8 +119,8 @@ export default function Home() {
     clearData();
   };
 
-  const minDateStr = allMessages.length > 0 ? allMessages[0].dateStr : '';
-  const maxDateStr = allMessages.length > 0 ? allMessages[allMessages.length - 1].dateStr : '';
+  const minDateStr = isUserUploaded && allMessages.length > 0 ? allMessages[0].dateStr : '';
+  const maxDateStr = isUserUploaded && allMessages.length > 0 ? allMessages[allMessages.length - 1].dateStr : '';
 
   return (
     <div className="min-h-screen bg-slate-100 sm:py-8 flex flex-col items-center justify-start selection:bg-indigo-500 selection:text-white font-sans">
@@ -94,55 +129,65 @@ export default function Home() {
         {/* 1. Header Bar */}
         <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 py-3 flex items-center justify-between shadow-2xs">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-indigo-600 shadow-sm text-white">
-              <MessageSquare className="w-4 h-4" />
-            </div>
+            <Image
+              src="/kount-app-logo.png"
+              alt="Kount 앱 로고"
+              width={32}
+              height={32}
+              className="object-contain flex-shrink-0"
+              unoptimized
+            />
             <div>
               <h1 className="font-extrabold text-base text-slate-900 tracking-tight flex items-center gap-1.5">
-                Kount <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700 font-extrabold border border-indigo-200">v1.0.0</span>
+                Kount <span className="text-xs text-slate-500 font-bold">(카카오톡 대화 분석기)</span>
               </h1>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            {isUserUploaded ? (
+            {isUserUploaded && (
               <button
                 onClick={handleResetToSample}
-                className="flex items-center gap-1 text-xs font-extrabold px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition-all active:scale-95"
+                className="flex items-center gap-1 text-xs font-extrabold px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition-all active:scale-95 cursor-pointer"
               >
                 <RefreshCw className="w-3.5 h-3.5" />
-                <span>예시 데이터 보기</span>
-              </button>
-            ) : (
-              <button
-                onClick={handleFileSelect}
-                className="flex items-center gap-1 text-xs font-extrabold px-2.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-xs transition-all active:scale-95"
-              >
-                <RefreshCw className="w-3.5 h-3.5" />
-                <span>새 파일 업로드</span>
+                <span>데이터 초기화</span>
               </button>
             )}
 
-            <Link
-              href="/admin"
-              className="flex items-center gap-1 text-xs font-extrabold px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 border border-slate-800 transition-all active:scale-95 shadow-xs"
-            >
-              <Shield className="w-3.5 h-3.5 text-amber-400" />
-              <span>관리자 모드</span>
-            </Link>
+            {/* 관리자 인증 신호가 저장된 디바이스/브라우저에만 관리자 모드 버튼 노출 */}
+            {isAdminAuthorized && (
+              <Link
+                href="/admin"
+                className="flex items-center gap-1 text-xs font-extrabold px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-amber-300 border border-slate-800 transition-all active:scale-95 shadow-xs"
+              >
+                <Shield className="w-3.5 h-3.5 text-amber-400" />
+                <span>관리자 모드</span>
+              </Link>
+            )}
           </div>
         </header>
 
-        {/* 2. 카카오톡 대화 내용 파일 (.txt / .csv) 업로드 박스 */}
-        <section className="px-4 pt-4">
-          <FileUploader
-            onDataParsed={(rawText, fileName) => handleProcessText(rawText, fileName, true)}
-          />
-        </section>
+        {/* 2. 대화 파일 업로드 / '공유한 대화가 없습니다.' 카드 */}
+        {!isUserUploaded && (
+          <section className="px-4 pt-6 flex-1 flex flex-col justify-center items-center">
+            <FileUploader
+              onDataParsed={(rawText, fileName) => handleProcessText(rawText, fileName, true)}
+            />
+            {/* Footer when no file uploaded */}
+            <footer className="pt-6 text-center text-xs text-slate-400 font-medium space-y-1">
+              <p>Kount 카카오톡 대화 분석기</p>
+              <p className="text-[11px] text-slate-500 font-mono">App Version v1.0.0</p>
+            </footer>
+          </section>
+        )}
 
         {/* 3. 분석 기간 필터 */}
-        {allMessages.length > 0 && (
+        {isUserUploaded && allMessages.length > 0 && (
           <section className="px-4 pt-3">
+            <FileUploader
+              onDataParsed={(rawText, fileName) => handleProcessText(rawText, fileName, true)}
+            />
             <DateRangeFilter
               minDateStr={minDateStr}
               maxDateStr={maxDateStr}
@@ -164,7 +209,7 @@ export default function Home() {
         )}
 
         {/* 4. 카카오톡 대화 분석 리포트 & 성향 분석 공유 */}
-        {!isLoading && parsingResult && (
+        {!isLoading && isUserUploaded && parsingResult && (
           <div className="space-y-6 pt-4">
             {/* 전체 대화 요약 카드 */}
             <section className="px-4">

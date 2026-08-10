@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import FileUploader from '@/components/FileUploader';
 import DateRangeFilter from '@/components/DateRangeFilter';
 import SummaryCards from '@/components/SummaryCards';
@@ -10,9 +11,12 @@ import { useChatData } from '@/context/ChatDataContext';
 import { calculateChatStats } from '@/lib/statsCalculator';
 import { ParsingResult } from '@/types/chat';
 import { checkAndRequestPermissions, testFileAccessPermission, testInternetConnection } from '@/lib/filesystemUtils';
-import { Settings, Shield, FileText, Download, Trash2, ArrowLeft, Layers } from 'lucide-react';
+import { Settings, Shield, FileText, Download, Trash2, ArrowLeft, Layers, Lock } from 'lucide-react';
 
 export default function AdminPage() {
+  const router = useRouter();
+  const [isAuthorized, setIsAuthorized] = useState<boolean>(false);
+
   const {
     allMessages,
     parsingResult: rawParsingResult,
@@ -29,6 +33,33 @@ export default function AdminPage() {
   // Date Filtering State in Admin View
   const [startDate, setStartDate] = useState<string>('');
   const [endDate, setEndDate] = useState<string>('');
+
+  // 🔒 Admin authorization check
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const params = new URLSearchParams(window.location.search);
+    const hasAdminParam = params.get('admin') === 'true' || params.get('mode') === 'admin';
+
+    if (hasAdminParam) {
+      localStorage.setItem('kount_admin_auth', 'true');
+    }
+
+    const storedAuth = localStorage.getItem('kount_admin_auth') === 'true';
+    if (!storedAuth) {
+      alert('🔒 관리자 접근 권한이 없습니다. 일반 사용자 화면으로 이동합니다.');
+      router.replace('/');
+    } else {
+      setIsAuthorized(true);
+    }
+  }, [router]);
+
+  const handleDisableAdminAccess = () => {
+    if (confirm('관리자 인증 신호를 삭제하고 일반 사용자 모드로 전환하시겠습니까?')) {
+      localStorage.removeItem('kount_admin_auth');
+      router.replace('/');
+    }
+  };
 
   const handleProcessText = async (rawText: string, fileName: string, isFromUpload: boolean = false) => {
     try {
@@ -104,6 +135,15 @@ export default function AdminPage() {
   const minDateStr = allMessages.length > 0 ? allMessages[0].dateStr : '';
   const maxDateStr = allMessages.length > 0 ? allMessages[allMessages.length - 1].dateStr : '';
 
+  if (!isAuthorized) {
+    return (
+      <div className="min-h-screen bg-slate-950 flex flex-col items-center justify-center p-8 text-slate-300 space-y-3 font-mono text-xs">
+        <div className="w-8 h-8 border-4 border-amber-400 border-t-transparent rounded-full animate-spin"></div>
+        <p className="font-bold text-slate-200">🔒 관리자 인증 권한 확인 중...</p>
+      </div>
+    );
+  }
+
   return (
     <main className="flex-1 pb-16 bg-slate-950 text-slate-100 min-h-screen">
       {/* 1. Admin Top Header */}
@@ -123,13 +163,24 @@ export default function AdminPage() {
             </div>
           </div>
 
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95"
-          >
-            <ArrowLeft className="w-3.5 h-3.5" />
-            사용자 뷰 보기
-          </Link>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleDisableAdminAccess}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-rose-950/90 hover:bg-rose-900 text-rose-300 rounded-xl text-xs font-bold transition-all border border-rose-800/80 active:scale-95 cursor-pointer"
+              title="관리자 인증 신호 삭제 및 사용자 모드 전환"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>관리자 모드 해제</span>
+            </button>
+
+            <Link
+              href="/"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition-all shadow-md active:scale-95"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              사용자 뷰 보기
+            </Link>
+          </div>
         </div>
       </header>
 

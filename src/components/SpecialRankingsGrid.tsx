@@ -18,7 +18,7 @@ export function KeyboardWarriorEmoji({ size = 28 }: { size?: number }) {
       alt="랜선 여포 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -38,7 +38,7 @@ export function ThiefAvatarEmoji({ size = 28 }: { size?: number }) {
       alt="월급루팡 도둑 이모티콘"
       width={scaledSize}
       height={scaledSize}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -52,7 +52,7 @@ export function CommentAlbaRobotEmoji({ size = 28 }: { size?: number }) {
       alt="댓글알바 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -66,7 +66,7 @@ export function MiracleDobbyEmoji({ size = 28 }: { size?: number }) {
       alt="미라클 도비 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -80,7 +80,7 @@ export function AngangEmoji({ size = 28 }: { size?: number }) {
       alt="앙앙이 슬픈 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -94,7 +94,7 @@ export function QuestionEmoji({ size = 28 }: { size?: number }) {
       alt="물음표 살인마 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -108,7 +108,7 @@ export function CrystalBallEmoji({ size = 28 }: { size?: number }) {
       alt="대화 성향 분석 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -122,7 +122,7 @@ export function SpeechHabitEmoji({ size = 28 }: { size?: number }) {
       alt="멤버별 순위& 레퍼토리 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -136,21 +136,21 @@ export function TrophySpeechEmoji({ size = 28 }: { size?: number }) {
       alt="카카오톡 상주민 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
 }
 
 // 🎆 👍 사용자 제공 원본 카카오톡 대화 분석 리포트 불꽃 따봉 이모티콘 컴포넌트 생성
-export function ReportHeaderEmoji({ size = 32 }: { size?: number }) {
+export function ReportHeaderEmoji({ size = 38 }: { size?: number }) {
   return (
     <Image
       src="/report-header-emoji.png"
       alt="카카오톡 대화 분석 리포트 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -164,7 +164,7 @@ export function HallOfFameEmoji({ size = 28 }: { size?: number }) {
       alt="명예의 전당 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );
@@ -178,7 +178,7 @@ export function PingPongEmoji({ size = 28 }: { size?: number }) {
       alt="핑퐁왕 이모티콘"
       width={size}
       height={size}
-      className="inline-block align-middle object-contain transition-transform hover:scale-110"
+      className="inline-block align-middle object-contain pointer-events-none select-none"
       unoptimized
     />
   );

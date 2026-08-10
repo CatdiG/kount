@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import PWARegister from "@/components/PWARegister";
+import KakaoScript from "@/components/KakaoScript";
 import { ChatDataProvider } from "@/context/ChatDataContext";
 
 const geistSans = Geist({
@@ -49,6 +50,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col bg-slate-50 text-slate-900 selection:bg-indigo-500 selection:text-white">
         <PWARegister />
+        <KakaoScript />
         <ChatDataProvider>
           {children}
         </ChatDataProvider>

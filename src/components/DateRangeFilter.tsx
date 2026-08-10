@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import { Calendar, Clock, Filter, RotateCcw } from 'lucide-react';
+import Image from 'next/image';
+import { Calendar, Clock, RotateCcw } from 'lucide-react';
 
 interface DateRangeFilterProps {
   minDateStr: string;
@@ -116,13 +117,18 @@ export default function DateRangeFilter({
   };
 
   return (
-    <div className="w-full my-3 bg-white border border-slate-200 p-3 sm:p-4 rounded-2xl shadow-xs space-y-3">
+    <div className="w-full mt-1 mb-3 bg-white border border-slate-200 p-3 sm:p-4 rounded-2xl shadow-xs space-y-3">
       {/* Header Bar */}
       <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200 flex-shrink-0">
-            <Filter className="w-4 h-4" />
-          </div>
+          <Image
+            src="/date-filter-icon.png"
+            alt="분석 기간 선택 이모티콘"
+            width={40}
+            height={40}
+            className="w-10 h-10 object-contain flex-shrink-0 pointer-events-none select-none"
+            unoptimized
+          />
           <div>
             <h3 className="text-xs sm:text-sm font-extrabold text-slate-900 tracking-tight">
               분석 기간 선택

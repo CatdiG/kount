@@ -5,6 +5,7 @@ import { toPng, toBlob } from 'html-to-image';
 import { ParsingResult, UserStat } from '@/types/chat';
 import { PROFANITY_REGEX } from '@/lib/kakaotalkParser';
 import ChatCharts from '@/components/ChatCharts';
+import { KAKAO_JAVASCRIPT_KEY } from '@/components/KakaoScript';
 import { PingPongEmoji, KeyboardWarriorEmoji, HulkNativeEmoji, ThiefAvatarEmoji, CommentAlbaRobotEmoji, MiracleDobbyEmoji, AngangEmoji, QuestionEmoji, SpeechHabitEmoji, TrophySpeechEmoji, HallOfFameEmoji, ReportHeaderEmoji, CrystalBallEmoji } from '@/components/SpecialRankingsGrid';
 import {
   Download,
@@ -113,10 +114,61 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
     }
   };
 
-  // 💛 카카오톡 어플 공유
+  // 💛 카카오톡 어플 공유 (Kakao JavaScript SDK 공유 API)
   const handleShareToKakaoApp = async () => {
     setIsGenerating(true);
     try {
+      // 1. 카카오 자바스크립트 SDK 초기화 상태 확인 및 동적 초기화 시도
+      const activeKakaoKey = process.env.NEXT_PUBLIC_KAKAO_JAVASCRIPT_KEY || KAKAO_JAVASCRIPT_KEY;
+      if (typeof window !== 'undefined' && window.Kakao) {
+        if (!window.Kakao.isInitialized() && activeKakaoKey && activeKakaoKey !== 'YOUR_JAVASCRIPT_KEY') {
+          try {
+            window.Kakao.init(activeKakaoKey);
+          } catch (e) {
+            console.error('Kakao.init error:', e);
+          }
+        }
+      }
+
+      // 2. 카카오톡 SDK가 초기화되어 있는 경우 Kakao.Share.sendDefault 메시지 발송 API 실행
+      if (typeof window !== 'undefined' && window.Kakao && window.Kakao.isInitialized()) {
+        const rawLocation = typeof window !== 'undefined' ? window.location.href : '';
+        const targetUrl = (rawLocation.startsWith('http://') || rawLocation.startsWith('https://'))
+          ? rawLocation
+          : 'https://kount.app';
+
+        const top1Str = top3Chatters[0] ? `${top3Chatters[0].nickname} (${top3Chatters[0].totalMessages.toLocaleString()}개)` : '없음';
+        const top2Str = top3Chatters[1] ? `${top3Chatters[1].nickname} (${top3Chatters[1].totalMessages.toLocaleString()}개)` : '없음';
+        const top3Str = top3Chatters[2] ? `${top3Chatters[2].nickname} (${top3Chatters[2].totalMessages.toLocaleString()}개)` : '없음';
+
+        window.Kakao.Share.sendDefault({
+          objectType: 'feed',
+          content: {
+            title: '카카오톡 대화 분석 리포트',
+            description: `분석기간: ${startDateStr} ~ ${endDateStr}\n총 ${totalMessages.toLocaleString()}개 메시지 (${uniqueUsersCount}명 참여)\n🥇 1위: ${top1Str}\n🥈 2위: ${top2Str}\n🥉 3위: ${top3Str}`,
+            imageUrl: `${typeof window !== 'undefined' ? window.location.origin : 'https://kount.app'}/icon-512.png`,
+            link: {
+              mobileWebUrl: targetUrl,
+              webUrl: targetUrl,
+            },
+          },
+          buttons: [
+            {
+              title: '📊 대화 분석 리포트 보기',
+              link: {
+                mobileWebUrl: targetUrl,
+                webUrl: targetUrl,
+              },
+            },
+          ],
+        });
+
+        setCopiedStatus('kakaoApp');
+        setTimeout(() => setCopiedStatus(null), 2500);
+        return;
+      }
+
+      // 3. Fallback 1: Native Web Share API (이미지 파일 함께 전달)
       const formatTop3List = (users: UserStat[], formatFn: (u: UserStat) => string) => {
         if (!users || users.length === 0) return '없음';
         return users
@@ -139,7 +191,7 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
       };
 
       const textSummary = `
-📱 [카카오톡 대화 분석 완벽 리포트]
+[카카오톡 대화 분석 완벽 리포트]
 📅 분석 기간: ${startDateStr} ~ ${endDateStr} (${totalMessages.toLocaleString()}개 메시지, ${uniqueUsersCount}명)
 
 🥇 [카카오톡 상주민]
@@ -151,7 +203,7 @@ ${userStats
   )
   .join('\n')}
 
-🗣️ [멤버별 순위& 레퍼토리]
+💬 [멤버별 순위& 레퍼토리]
 ${formatHabits(userStats)}
 
 👑 [명예의 전당 Top 3]
@@ -176,7 +228,7 @@ ${formatHabits(userStats)}
 
       if (shareFiles.length > 0 && navigator.share && navigator.canShare && navigator.canShare({ files: shareFiles })) {
         await navigator.share({
-          title: '📱 카카오톡 대화 분석 리포트',
+          title: '카카오톡 대화 분석 리포트',
           text: textSummary,
           files: shareFiles,
         });
@@ -185,6 +237,7 @@ ${formatHabits(userStats)}
         return;
       }
 
+      // 4. Fallback 2: 클립보드 복사 및 카카오톡 웹 링크 공유기
       await navigator.clipboard.writeText(textSummary);
       const rawLocation = typeof window !== 'undefined' ? window.location.href : '';
       const targetUrl = (rawLocation.startsWith('http://') || rawLocation.startsWith('https://'))
@@ -220,8 +273,8 @@ ${formatHabits(userStats)}
         <div className="p-4 sm:p-6 bg-gradient-to-b from-indigo-50/60 to-white space-y-4">
           <div className="flex items-center justify-between border-b border-slate-200/80 pb-4">
             <div className="flex items-center gap-2.5">
-              <div className="flex-shrink-0 w-11 h-11 flex items-center justify-center">
-                <ReportHeaderEmoji size={42} />
+              <div className="flex-shrink-0 w-14 h-14 flex items-center justify-center">
+                <ReportHeaderEmoji size={48} />
               </div>
               <div>
                 <div className="flex items-center gap-1.5">
@@ -447,12 +500,12 @@ ${formatHabits(userStats)}
           <div className="border-b border-slate-200 pb-3 space-y-1.5 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="flex-shrink-0 w-8 h-8 flex items-center justify-center">
-                  <ReportHeaderEmoji size={30} />
+                <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+                  <ReportHeaderEmoji size={36} />
                 </div>
                 <div>
                   <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                    카톡 대화 분석 리포트
+                    카카오톡 대화 분석 리포트
                   </h2>
                   <p className="text-[10px] text-slate-500 font-medium">
                     📅 {startDateStr} ~ {endDateStr} ({totalMessages.toLocaleString()}개 대화, {uniqueUsersCount}명)
@@ -588,7 +641,7 @@ ${formatHabits(userStats)}
             <UnifiedSpecialCard
               title="핑퐁왕"
               subtitle="답장 시간이 가장 짧은 사람"
-              icon={<PingPongEmoji size={18} />}
+              icon={<PingPongEmoji size={28} />}
               users={pingPongKing}
               metricFormatter={(u) => u.avgReplyTimeFormatted}
               category="pingpong"
@@ -599,7 +652,7 @@ ${formatHabits(userStats)}
             <UnifiedSpecialCard
               title="월급루팡"
               subtitle="근무시간(09시~18시) 대화 작성 건수가 가장 많은 사람"
-              icon={<ThiefAvatarEmoji size={18} />}
+              icon={<ThiefAvatarEmoji size={28} />}
               users={salaryLupin}
               metricFormatter={(u) => `${u.workHourMessages}개`}
               category="lupin"
@@ -610,7 +663,7 @@ ${formatHabits(userStats)}
             <UnifiedSpecialCard
               title="댓글알바"
               subtitle="다른 사람 대화에 댓글/답글을 가장 많이 남긴 사람"
-              icon={<CommentAlbaRobotEmoji size={18} />}
+              icon={<CommentAlbaRobotEmoji size={28} />}
               users={commentAlba}
               metricFormatter={(u) => `${u.commentCount}개`}
               category="comment"
@@ -641,7 +694,7 @@ ${formatHabits(userStats)}
             <UnifiedSpecialCard
               title="미라클 도비"
               subtitle="아침 개같은거 또 왔네"
-              icon={<MiracleDobbyEmoji size={18} />}
+              icon={<MiracleDobbyEmoji size={28} />}
               users={miracleDobby}
               metricFormatter={(u) => `${u.morningCount}개`}
               category="morning"
@@ -652,7 +705,7 @@ ${formatHabits(userStats)}
             <UnifiedSpecialCard
               title="랜선 여포"
               subtitle="비속어·욕설 사용 건수가 가장 많은 사람"
-              icon={<KeyboardWarriorEmoji size={18} />}
+              icon={<KeyboardWarriorEmoji size={28} />}
               users={keyboardWarrior}
               metricFormatter={(u) => `${u.profanityCount}개`}
               category="keyboard"
@@ -683,7 +736,7 @@ ${formatHabits(userStats)}
             <UnifiedSpecialCard
               title="앙앙이"
               subtitle="대화 중 눈물을 가장 많이 흘린 사람"
-              icon={<AngangEmoji size={18} />}
+              icon={<AngangEmoji size={28} />}
               users={angangEmoji}
               metricFormatter={(u) => `${u.cryingCount}개`}
               category="angang"
@@ -694,7 +747,7 @@ ${formatHabits(userStats)}
             <UnifiedSpecialCard
               title="물음표 살인마"
               subtitle="대화 중 '?'를 가장 많이 사용한 사람"
-              icon={<QuestionEmoji size={18} />}
+              icon={<QuestionEmoji size={28} />}
               users={questionKiller}
               metricFormatter={(u) => `${u.questionCount}개`}
               category="question"
