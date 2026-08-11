@@ -347,40 +347,35 @@ export default function AdminPage() {
           </section>
         )}
 
-        {/* 4. 분석 기간 필터 (파싱 정밀 진단 리포트 바로 아래 위치!) */}
+        {/* 4. 분석 기간 필터 및 카카오톡 대화 분석 리포트 */}
         {allMessages.length > 0 && (
-          <section className="px-4">
-            <DateRangeFilter
-              minDateStr={minDateStr}
-              maxDateStr={maxDateStr}
-              startDate={startDate}
-              endDate={endDate}
-              onRangeChange={handleRangeChange}
-              filteredCount={parsingResult?.totalMessages || 0}
-              totalCount={allMessages.length}
-            />
-          </section>
-        )}
+          <div>
+            <section className="px-4 pt-3">
+              <DateRangeFilter
+                minDateStr={minDateStr}
+                maxDateStr={maxDateStr}
+                startDate={startDate}
+                endDate={endDate}
+                onRangeChange={handleRangeChange}
+                filteredCount={parsingResult?.totalMessages || 0}
+                totalCount={allMessages.length}
+              />
+            </section>
 
-        {/* 5. 카카오톡 대화 분석 리포트 & 성향 분석 공유 */}
-        {!isLoading && parsingResult && (
-          <div className="space-y-6 text-slate-900">
-            <div className="px-4">
-              <div className="py-2 px-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl text-amber-300 text-xs font-bold flex items-center justify-between">
-                <span>📊 사용자 리포트 및 통계 화면 (관리자 동기화 보기)</span>
-                <span className="text-[10px] text-amber-400">v1.0.0</span>
+            {/* 5. 카카오톡 대화 분석 리포트 & 성향 분석 공유 */}
+            {!isLoading && parsingResult && (
+              <div className="space-y-3 pt-[9px] text-slate-900">
+                {/* 전체 대화 요약 카드 */}
+                <section className="px-4">
+                  <SummaryCards parsingResult={parsingResult} />
+                </section>
+
+                {/* 카카오톡 대화 성향 분석 리포트 & 공유 카드 */}
+                <section className="px-4 pb-4">
+                  <KakaoTalkShareCard parsingResult={parsingResult} />
+                </section>
               </div>
-            </div>
-
-            {/* 전체 대화 요약 카드 */}
-            <section className="px-4">
-              <SummaryCards parsingResult={parsingResult} />
-            </section>
-
-            {/* 카카오톡 대화 성향 분석 리포트 & 공유 카드 */}
-            <section className="px-4 pb-4">
-              <KakaoTalkShareCard parsingResult={parsingResult} />
-            </section>
+            )}
           </div>
         )}
 

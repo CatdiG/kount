@@ -16,9 +16,15 @@ import { Clock, Sparkles } from 'lucide-react';
 
 interface ChatChartsProps {
   parsingResult: ParsingResult;
+  showTimeline?: boolean;
+  showKeywords?: boolean;
 }
 
-export default function ChatCharts({ parsingResult }: ChatChartsProps) {
+export default function ChatCharts({
+  parsingResult,
+  showTimeline = true,
+  showKeywords = true,
+}: ChatChartsProps) {
   const { hourlyDistribution, topKeywords } = parsingResult;
 
   const formatXAxisHour = (hourVal: any) => {
@@ -31,7 +37,8 @@ export default function ChatCharts({ parsingResult }: ChatChartsProps) {
   return (
     <div className="w-full space-y-4">
       {/* Chart 1: 24시간대별 대화 분포 */}
-      <div className="rounded-2xl bg-slate-50/80 border border-slate-200 p-4 flex flex-col items-center shadow-2xs">
+      {showTimeline && (
+        <div className="rounded-2xl bg-slate-50/80 border border-slate-200 p-4 flex flex-col items-center shadow-2xs">
         <div className="flex items-center gap-1.5 w-full justify-center text-center mb-3">
           <Clock className="w-4 h-4 text-indigo-600 flex-shrink-0" />
           <h3 className="text-sm font-extrabold text-slate-900">24시간대별 채팅 타임라인</h3>
@@ -66,42 +73,45 @@ export default function ChatCharts({ parsingResult }: ChatChartsProps) {
           </ResponsiveContainer>
         </div>
       </div>
+      )}
 
-      {/* Chart 2: 최다 사용 키워드 Top 20 */}
-      <div className="rounded-2xl bg-slate-50/80 border border-slate-200 p-4 flex flex-col justify-between shadow-2xs">
-        <div className="flex items-center gap-1.5 w-full justify-center text-center mb-3">
-          <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
-          <h3 className="text-sm font-extrabold text-slate-900">
-            최다 사용 키워드 Top 20
-          </h3>
-          <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
-        </div>
-        <div className="flex flex-wrap items-center justify-center gap-1.5 py-2">
-          {topKeywords.length === 0 ? (
-            <p className="text-slate-400 text-xs italic">키워드가 추출되지 않았습니다.</p>
-          ) : (
-            topKeywords.slice(0, 20).map((kw, i) => {
-              const badgeGradients = [
-                'bg-indigo-50 text-indigo-700 border-indigo-200',
-                'bg-purple-50 text-purple-700 border-purple-200',
-                'bg-pink-50 text-pink-700 border-pink-200',
-                'bg-amber-50 text-amber-800 border-amber-200',
-                'bg-emerald-50 text-emerald-800 border-emerald-200',
-              ];
-              const grad = badgeGradients[i % badgeGradients.length];
+      {/* Chart 2: 최다 사용 키워드 Top20 */}
+      {showKeywords && (
+        <div className="rounded-2xl bg-slate-50/80 border border-slate-200 p-4 flex flex-col justify-between shadow-2xs">
+          <div className="flex items-center gap-1.5 w-full justify-center text-center mb-3">
+            <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
+            <h3 className="text-sm font-extrabold text-slate-900">
+              최다 사용 키워드 Top20
+            </h3>
+            <Sparkles className="w-4 h-4 text-amber-500 flex-shrink-0" />
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-1.5 py-2">
+            {topKeywords.length === 0 ? (
+              <p className="text-slate-400 text-xs italic">키워드가 추출되지 않았습니다.</p>
+            ) : (
+              topKeywords.slice(0, 20).map((kw, i) => {
+                const badgeGradients = [
+                  'bg-indigo-50 text-indigo-700 border-indigo-200',
+                  'bg-purple-50 text-purple-700 border-purple-200',
+                  'bg-pink-50 text-pink-700 border-pink-200',
+                  'bg-amber-50 text-amber-800 border-amber-200',
+                  'bg-emerald-50 text-emerald-800 border-emerald-200',
+                ];
+                const grad = badgeGradients[i % badgeGradients.length];
 
-              return (
-                <span
-                  key={kw.text}
-                  className={`px-2.5 py-1 rounded-xl border ${grad} text-xs font-bold transition-transform cursor-default shadow-2xs`}
-                >
-                  #{kw.text} ({kw.value})
-                </span>
-              );
-            })
-          )}
+                return (
+                  <span
+                    key={kw.text}
+                    className={`px-2.5 py-1 rounded-xl border ${grad} text-xs font-bold transition-transform cursor-default shadow-2xs`}
+                  >
+                    #{kw.text} ({kw.value})
+                  </span>
+                );
+              })
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

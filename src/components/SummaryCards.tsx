@@ -16,7 +16,7 @@ export default function SummaryCards({ parsingResult }: SummaryCardsProps) {
   } = parsingResult;
 
   return (
-    <div className="w-full my-2 grid grid-cols-3 gap-2">
+    <div className="w-full grid grid-cols-3 gap-2">
       {/* Card 1: 총 메시지 수 */}
       <div className="p-3 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between text-center">
         <div className="flex items-center justify-center text-indigo-600">

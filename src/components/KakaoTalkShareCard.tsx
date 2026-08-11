@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useRef, useState } from 'react';
+import Image from 'next/image';
 import { toPng, toBlob } from 'html-to-image';
 import { ParsingResult, UserStat } from '@/types/chat';
 import { PROFANITY_REGEX } from '@/lib/kakaotalkParser';
@@ -19,6 +20,8 @@ import {
   MessageSquare,
   ChevronDown,
   ChevronUp,
+  Clock,
+  Sparkles,
 } from 'lucide-react';
 
 interface KakaoTalkShareCardProps {
@@ -36,6 +39,30 @@ export function formatPeakHourPeriod(hour: number): string {
     return `${period} ${displayHour}시~${nextDisplayHour}시`;
   }
   return `${period} ${displayHour}시 ~ ${nextPeriod} ${nextDisplayHour}시`;
+}
+
+// 🏷️ 브랜딩 워터마크 (kount (카카오톡 대화 분석기) 로고 표식)
+function BrandingWatermark({ className = '' }: { className?: string }) {
+  return (
+    <div
+      className={`flex items-center justify-end gap-1.5 text-[11px] font-black text-slate-500 font-mono pt-1 pb-0 -mb-1.5 flex-shrink-0 select-none px-1 ${className}`}
+    >
+      <Image
+        src="/kount-app-logo.png"
+        alt="kount logo"
+        width={14}
+        height={14}
+        className="w-3.5 h-3.5 object-contain inline-block flex-shrink-0 opacity-90"
+        unoptimized
+      />
+      <span className="tracking-tight text-slate-700 font-black text-[10.5px]">
+        kount{' '}
+        <span className="text-[9.5px] font-bold text-slate-500">
+          (카카오톡 대화 분석기)
+        </span>
+      </span>
+    </div>
+  );
 }
 
 // 🥇 1위 금메달, 🥈 2위 은메달, 🥉 3위 동메달
@@ -56,9 +83,100 @@ function RankBadge({ rank }: { rank: number }) {
   );
 }
 
+export interface SpecialItemMeta {
+  id: string;
+  title: string;
+  icon: React.ReactNode;
+}
+
+export const HALL_OF_FAME_ITEMS: SpecialItemMeta[] = [
+  { id: 'pingpong', title: '핑퐁왕', icon: <PingPongEmoji size={20} /> },
+  { id: 'lupin', title: '월급루팡', icon: <ThiefAvatarEmoji size={20} /> },
+  { id: 'comment', title: '댓글알바', icon: <CommentAlbaRobotEmoji size={20} /> },
+  { id: 'morning', title: '미라클 도비', icon: <MiracleDobbyEmoji size={20} /> },
+  { id: 'potato', title: '감자... 좀 쪄줄래?', icon: <PotatoEmoji size={20} /> },
+  { id: 'keyboard', title: '랜선 여포', icon: <KeyboardWarriorEmoji size={20} /> },
+  { id: 'angang', title: '앙앙이', icon: <AngangEmoji size={20} /> },
+  { id: 'question', title: '물음표 살인마', icon: <QuestionEmoji size={20} /> },
+];
+
+export const CHAT_CHART_ITEMS: SpecialItemMeta[] = [
+  { id: 'timeline', title: '24시간대별 대화 그래프', icon: <Clock className="w-4 h-4 text-indigo-600" /> },
+  { id: 'keywords', title: '최다 사용 키워드 Top20', icon: <Sparkles className="w-4 h-4 text-amber-500" /> },
+];
+
 export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCardProps) {
-  // 📸 캡처 대상 3개 페이지 Refs (Page 1: Top3+말버릇통합, Page 2: 핑퐁왕+헐크, Page 3: 월급루팡+대화성향분석)
+  // 📸 캡처 대상 3개 페이지 Refs
   const capturePageRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // 🎯 카테고리 & 소제목 선택 상태
+  const [isOverviewSelected, setIsOverviewSelected] = useState<boolean>(true);
+  const [selectedHallOfFameIds, setSelectedHallOfFameIds] = useState<string[]>([
+    'pingpong',
+    'lupin',
+    'comment',
+    'morning',
+    'potato',
+    'keyboard',
+    'angang',
+    'question',
+  ]);
+  const [selectedChartIds, setSelectedChartIds] = useState<string[]>([
+    'timeline',
+    'keywords',
+  ]);
+
+  const toggleHallOfFameItem = (id: string) => {
+    setSelectedHallOfFameIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllHallOfFame = () => {
+    setSelectedHallOfFameIds([
+      'pingpong',
+      'lupin',
+      'comment',
+      'morning',
+      'potato',
+      'keyboard',
+      'angang',
+      'question',
+    ]);
+  };
+
+  const deselectAllHallOfFame = () => {
+    setSelectedHallOfFameIds([]);
+  };
+
+  const toggleChartItem = (id: string) => {
+    setSelectedChartIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const selectAllCharts = () => {
+    setSelectedChartIds(['timeline', 'keywords']);
+  };
+
+  const deselectAllCharts = () => {
+    setSelectedChartIds([]);
+  };
+
+  const handleSelectAll = () => {
+    setIsOverviewSelected(true);
+    selectAllHallOfFame();
+    selectAllCharts();
+  };
+
+  const handleDeselectAll = () => {
+    setIsOverviewSelected(false);
+    deselectAllHallOfFame();
+    deselectAllCharts();
+  };
+
+  const totalSelectedCount =
+    (isOverviewSelected ? 1 : 0) + selectedHallOfFameIds.length + selectedChartIds.length;
 
   const [copiedStatus, setCopiedStatus] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -87,24 +205,125 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
 
   const peakHourText = formatPeakHourPeriod(peakHour);
 
-  // 총 캡처 페이지 수 = 3개 (황금 밸런스 3페이지 체제)
-  const totalPages = 3;
-
-  // 🔥 이미지 다운로드 (Page 1은 유연한 세로 길이 캡처, Page 2&3은 9:16 규격 캡처)
+  // 🔥 이미지 다운로드 (선택된 카드를 순차적으로 캡처 및 다운로드)
   const handleDownloadAllPages = async () => {
+    if (totalSelectedCount === 0) {
+      alert('저장할 카드를 최소 1개 이상 선택해 주세요.');
+      return;
+    }
     setIsGenerating(true);
     try {
-      const validRefs = capturePageRefs.current.filter((ref): ref is HTMLDivElement => ref !== null);
+      let pageNum = 1;
 
-      for (let i = 0; i < validRefs.length; i++) {
+      // 1. Page 1: 기본 리포트 (Part 1: 1~10위)
+      if (isOverviewSelected && capturePageRefs.current[0]) {
         await new Promise((resolve) => setTimeout(resolve, 350));
         const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
-
-        const dataUrl = await toPng(validRefs[i], captureOptions);
+        const dataUrl = await toPng(capturePageRefs.current[0], captureOptions);
         const link = document.createElement('a');
-        link.download = `분석결과_${i + 1}페이지.png`;
+        link.download = userStats.length > 10
+          ? `kount_분석결과_${pageNum}페이지_기본리포트-1.png`
+          : `kount_분석결과_${pageNum}페이지_기본리포트.png`;
         link.href = dataUrl;
         link.click();
+        pageNum++;
+      }
+
+      // 1b. Page 1b: 기본 리포트 (Part 2: 11위~) (10명 이상인 경우에만 추가)
+      if (isOverviewSelected && userStats.length > 10 && capturePageRefs.current[8]) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const dataUrl = await toPng(capturePageRefs.current[8], captureOptions);
+        const link = document.createElement('a');
+        link.download = `kount_분석결과_${pageNum}페이지_기본리포트-2.png`;
+        link.href = dataUrl;
+        link.click();
+        pageNum++;
+      }
+
+      // 2. Page 2: 명예의 전당 Part 1 (핑퐁왕, 월급루팡, 댓글알바)
+      const hasPart1 = ['pingpong', 'lupin', 'comment'].some((id) => selectedHallOfFameIds.includes(id));
+      if (hasPart1 && capturePageRefs.current[1]) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const dataUrl = await toPng(capturePageRefs.current[1], captureOptions);
+        const link = document.createElement('a');
+        link.download = `kount_분석결과_${pageNum}페이지_명예의전당_Part1.png`;
+        link.href = dataUrl;
+        link.click();
+        pageNum++;
+      }
+
+      // 3. Page 3: 미라클 도비
+      if (selectedHallOfFameIds.includes('morning') && capturePageRefs.current[2]) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const dataUrl = await toPng(capturePageRefs.current[2], captureOptions);
+        const link = document.createElement('a');
+        link.download = `kount_분석결과_${pageNum}페이지_미라클도비.png`;
+        link.href = dataUrl;
+        link.click();
+        pageNum++;
+      }
+
+      // 4. Page 4: 감자.. 좀 쪄줄래?
+      if (selectedHallOfFameIds.includes('potato') && capturePageRefs.current[3]) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const dataUrl = await toPng(capturePageRefs.current[3], captureOptions);
+        const link = document.createElement('a');
+        link.download = `kount_분석결과_${pageNum}페이지_감자좀쪄줄래.png`;
+        link.href = dataUrl;
+        link.click();
+        pageNum++;
+      }
+
+      // 5. Page 5: 랜선 여포
+      if (selectedHallOfFameIds.includes('keyboard') && capturePageRefs.current[4]) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const dataUrl = await toPng(capturePageRefs.current[4], captureOptions);
+        const link = document.createElement('a');
+        link.download = `kount_분석결과_${pageNum}페이지_랜선여포.png`;
+        link.href = dataUrl;
+        link.click();
+        pageNum++;
+      }
+
+      // 6. Page 6: 앙앙이
+      if (selectedHallOfFameIds.includes('angang') && capturePageRefs.current[5]) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const dataUrl = await toPng(capturePageRefs.current[5], captureOptions);
+        const link = document.createElement('a');
+        link.download = `kount_분석결과_${pageNum}페이지_앙앙이.png`;
+        link.href = dataUrl;
+        link.click();
+        pageNum++;
+      }
+
+      // 7. Page 7: 물음표 살인마
+      if (selectedHallOfFameIds.includes('question') && capturePageRefs.current[6]) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const dataUrl = await toPng(capturePageRefs.current[6], captureOptions);
+        const link = document.createElement('a');
+        link.download = `kount_분석결과_${pageNum}페이지_물음표살인마.png`;
+        link.href = dataUrl;
+        link.click();
+        pageNum++;
+      }
+
+      // 8. Page 8: 대화 성향 분석
+      if (selectedChartIds.length > 0 && capturePageRefs.current[7]) {
+        await new Promise((resolve) => setTimeout(resolve, 350));
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const dataUrl = await toPng(capturePageRefs.current[7], captureOptions);
+        const link = document.createElement('a');
+        link.download = `kount_분석결과_${pageNum}페이지_대화성향분석.png`;
+        link.href = dataUrl;
+        link.click();
+        pageNum++;
       }
     } catch (err) {
       console.error('Failed to generate images:', err);
@@ -116,6 +335,10 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
 
   // 💛 카카오톡 어플 공유 (Kakao JavaScript SDK 공유 API)
   const handleShareToKakaoApp = async () => {
+    if (totalSelectedCount === 0) {
+      alert('공유할 카드를 최소 1개 이상 선택해 주세요.');
+      return;
+    }
     setIsGenerating(true);
     try {
       // 1. 카카오 자바스크립트 SDK 초기화 상태 확인 및 동적 초기화 시도
@@ -212,17 +435,112 @@ ${formatHabits(userStats)}
 💼 월급루팡: ${formatTop3List(salaryLupin, (u) => `${u.workHourMessages}개`)}
       `.trim();
 
-      const validRefs = capturePageRefs.current.filter((ref): ref is HTMLDivElement => ref !== null);
       const shareFiles: File[] = [];
+      let pageNum = 1;
 
-      for (let i = 0; i < validRefs.length; i++) {
+      if (isOverviewSelected && capturePageRefs.current[0]) {
         const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
-
-        const blob = await toBlob(validRefs[i], captureOptions);
+        const blob = await toBlob(capturePageRefs.current[0], captureOptions);
         if (blob) {
           shareFiles.push(
-            new File([blob], `분석결과_${i + 1}페이지.png`, { type: 'image/png' })
+            new File(
+              [blob],
+              userStats.length > 10
+                ? `kount_분석결과_${pageNum}페이지_기본리포트-1.png`
+                : `kount_분석결과_${pageNum}페이지_기본리포트.png`,
+              { type: 'image/png' }
+            )
           );
+          pageNum++;
+        }
+      }
+
+      if (isOverviewSelected && userStats.length > 10 && capturePageRefs.current[8]) {
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const blob = await toBlob(capturePageRefs.current[8], captureOptions);
+        if (blob) {
+          shareFiles.push(
+            new File([blob], `kount_분석결과_${pageNum}페이지_기본리포트-2.png`, { type: 'image/png' })
+          );
+          pageNum++;
+        }
+      }
+
+      const hasPart1 = ['pingpong', 'lupin', 'comment'].some((id) => selectedHallOfFameIds.includes(id));
+      if (hasPart1 && capturePageRefs.current[1]) {
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const blob = await toBlob(capturePageRefs.current[1], captureOptions);
+        if (blob) {
+          shareFiles.push(
+            new File([blob], `kount_분석결과_${pageNum}페이지_명예의전당_Part1.png`, { type: 'image/png' })
+          );
+          pageNum++;
+        }
+      }
+
+      if (selectedHallOfFameIds.includes('morning') && capturePageRefs.current[2]) {
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const blob = await toBlob(capturePageRefs.current[2], captureOptions);
+        if (blob) {
+          shareFiles.push(
+            new File([blob], `kount_분석결과_${pageNum}페이지_미라클도비.png`, { type: 'image/png' })
+          );
+          pageNum++;
+        }
+      }
+
+      if (selectedHallOfFameIds.includes('potato') && capturePageRefs.current[3]) {
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const blob = await toBlob(capturePageRefs.current[3], captureOptions);
+        if (blob) {
+          shareFiles.push(
+            new File([blob], `kount_분석결과_${pageNum}페이지_감자좀쪄줄래.png`, { type: 'image/png' })
+          );
+          pageNum++;
+        }
+      }
+
+      if (selectedHallOfFameIds.includes('keyboard') && capturePageRefs.current[4]) {
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const blob = await toBlob(capturePageRefs.current[4], captureOptions);
+        if (blob) {
+          shareFiles.push(
+            new File([blob], `kount_분석결과_${pageNum}페이지_랜선여포.png`, { type: 'image/png' })
+          );
+          pageNum++;
+        }
+      }
+
+      if (selectedHallOfFameIds.includes('angang') && capturePageRefs.current[5]) {
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const blob = await toBlob(capturePageRefs.current[5], captureOptions);
+        if (blob) {
+          shareFiles.push(
+            new File([blob], `kount_분석결과_${pageNum}페이지_앙앙이.png`, { type: 'image/png' })
+          );
+          pageNum++;
+        }
+      }
+
+      if (selectedHallOfFameIds.includes('question') && capturePageRefs.current[6]) {
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const blob = await toBlob(capturePageRefs.current[6], captureOptions);
+        if (blob) {
+          shareFiles.push(
+            new File([blob], `kount_분석결과_${pageNum}페이지_물음표살인마.png`, { type: 'image/png' })
+          );
+          pageNum++;
+        }
+      }
+
+      if (selectedChartIds.length > 0 && capturePageRefs.current[7]) {
+        const captureOptions = { cacheBust: true, pixelRatio: 2.5, width: 440 };
+        const blob = await toBlob(capturePageRefs.current[7], captureOptions);
+        if (blob) {
+          shareFiles.push(
+            new File([blob], `kount_분석결과_${pageNum}페이지_대화성향분석.png`, { type: 'image/png' })
+          );
+          pageNum++;
         }
       }
 
@@ -266,7 +584,7 @@ ${formatHabits(userStats)}
   };
 
   return (
-    <div className="w-full max-w-6xl mx-auto my-8 space-y-4">
+    <div className="w-full max-w-6xl mx-auto space-y-4">
       {/* 💻 [웹사이트 화면 Display 리포트 컨테이너] */}
       <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl divide-y divide-slate-200">
         {/* Section 1: Top 3 & 개요 Header */}
@@ -433,11 +751,11 @@ ${formatHabits(userStats)}
               metricFormatter={(u) => `${u.morningCount}개`}
               category="morning"
               getExamples={() => []}
-              emptyText="아침 인사(모닝/몬잉/머닝) 사용자가 없거나 부족합니다."
+              emptyText="아침 인사(모닝/몬잉/머닝/모닁/마닝) 사용자가 없거나 부족합니다."
             />
 
             <UnifiedSpecialCard
-              title="감자.. 좀 쪄줄래?"
+              title="감자... 좀 쪄줄래?"
               subtitle="끼니를 제일 잘 챙기는 사람"
               icon={<PotatoEmoji size={32} />}
               users={potatoEmoji}
@@ -466,7 +784,7 @@ ${formatHabits(userStats)}
               metricFormatter={(u) => `${u.cryingCount}개`}
               category="angang"
               getExamples={(u) => u.cryingExamples || []}
-              emptyText="ㅠㅠ/ㅜㅜ 사용자가 없거나 부족합니다."
+              emptyText="눈물/울음(ㅠㅠ/ㅜㅜ/ㅠ_ㅠ/ㅜ_ㅜ/ㅠ_ㅜ/ㅜ_ㅠ) 사용자가 없거나 부족합니다."
             />
 
             <UnifiedSpecialCard
@@ -516,7 +834,7 @@ ${formatHabits(userStats)}
                 </div>
                 <div>
                   <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
-                    카카오톡 대화 분석 리포트
+                    카카오톡 대화 분석 리포트{userStats.length > 10 ? ' -1' : ''}
                   </h2>
                   <p className="text-[10px] text-slate-500 font-medium">
                     📅 {startDateStr} ~ {endDateStr} ({totalMessages.toLocaleString()}개 대화, {uniqueUsersCount}명)
@@ -579,11 +897,11 @@ ${formatHabits(userStats)}
             </div>
           </div>
 
-          {/* Section 2: 멤버별 순위& 레퍼토리 (전체 멤버 묶음) */}
+          {/* Section 2: 멤버별 순위& 레퍼토리 (1~10위) */}
           <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 shadow-2xs flex-grow my-1 overflow-hidden box-border break-inside-avoid">
             <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
               <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                <SpeechHabitEmoji size={26} /> 멤버별 순위& 레퍼토리
+                <SpeechHabitEmoji size={26} /> 멤버별 순위& 레퍼토리 {userStats.length > 10 ? '(1~10위)' : ''}
               </h3>
               <span className="text-[9px] text-slate-500 font-mono">
                 총 {userStats.length}명
@@ -591,7 +909,7 @@ ${formatHabits(userStats)}
             </div>
 
             <div className="space-y-1.5">
-              {userStats.map((user) => (
+              {userStats.slice(0, 10).map((user) => (
                 <div
                   key={user.nickname}
                   className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 text-xs shadow-2xs overflow-hidden box-border whitespace-nowrap break-inside-avoid"
@@ -629,7 +947,138 @@ ${formatHabits(userStats)}
               ))}
             </div>
           </div>
+          <BrandingWatermark />
         </div>
+
+        {/* 🟡 PAGE 1b (기본 리포트 Part 2): 10명 초과 시 11위부터 나머지 (상주민 Top 3 포함) */}
+        {userStats.length > 10 && (
+          <div
+            ref={(el) => { capturePageRefs.current[8] = el; }}
+            className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative space-y-4 break-inside-avoid"
+          >
+            {/* Top Header Bar */}
+            <div className="border-b border-slate-200 pb-3 space-y-1.5 flex-shrink-0">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="flex-shrink-0 w-10 h-10 flex items-center justify-center">
+                    <ReportHeaderEmoji size={36} />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-1.5">
+                      카카오톡 대화 분석 리포트 -2
+                    </h2>
+                    <p className="text-[10px] text-slate-500 font-medium">
+                      📅 {startDateStr} ~ {endDateStr} ({totalMessages.toLocaleString()}개 대화, {uniqueUsersCount}명)
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-[10px] pt-1">
+                <span className="px-2 py-0.5 rounded-md bg-indigo-50 text-indigo-800 border border-indigo-200 font-bold">
+                  참여 멤버: 총 {uniqueUsersCount}명
+                </span>
+                <span className="px-2 py-0.5 rounded-md bg-amber-50 text-amber-900 border border-amber-200 font-bold">
+                  골든 타임: {peakHourText} 🔥
+                </span>
+              </div>
+            </div>
+
+            {/* Section 1: 카카오톡 상주민 (두페이지로 나눌 때 상단에 상주민 둘 다 표시) */}
+            <div className="space-y-2 flex-shrink-0 break-inside-avoid">
+              <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
+                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <TrophySpeechEmoji size={26} /> 카카오톡 상주민
+                </h3>
+                <span className="text-[9px] text-slate-500 font-mono">
+                  총 {totalMessages.toLocaleString()}개 기준
+                </span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2">
+                {top3Chatters.map((user, idx) => {
+                  const medalBgStylesMobile = [
+                    'bg-gradient-to-b from-amber-100 via-yellow-100 to-amber-200 border-amber-400 text-amber-950',
+                    'bg-gradient-to-b from-slate-200 via-slate-100 to-slate-300 border-slate-400 text-slate-900',
+                    'bg-gradient-to-b from-[#f8d7c4] via-[#e5a073] to-[#c66e2e] border-[#a85317] text-[#3b1702]',
+                  ];
+                  const metricBadgeStylesMobile = [
+                    'bg-amber-200/80 text-amber-950 border-amber-400',
+                    'bg-slate-200/90 text-slate-900 border-slate-400',
+                    'bg-[#f0ba97] text-[#3b1702] border-[#a85317]',
+                  ];
+                  return (
+                    <div
+                      key={user.nickname}
+                      className={`p-2 rounded-xl border flex flex-col items-center justify-center text-center gap-1 ${medalBgStylesMobile[idx]}`}
+                    >
+                      <span className="text-[11px] font-black">
+                        {idx === 0 ? '🥇 1위' : idx === 1 ? '🥈 2위' : '🥉 3위'}
+                      </span>
+                      <span className="font-extrabold text-xs truncate max-w-full">
+                        {user.nickname}
+                      </span>
+                      <span className={`text-[9px] font-mono font-extrabold px-1.5 py-0.2 rounded border ${metricBadgeStylesMobile[idx]}`}>
+                        {user.totalMessages.toLocaleString()}개
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Section 2: 멤버별 순위& 레퍼토리 (11위부터 나머지) */}
+            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 shadow-2xs flex-grow my-1 overflow-hidden box-border break-inside-avoid">
+              <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
+                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                  <SpeechHabitEmoji size={26} /> 멤버별 순위& 레퍼토리 (11위~)
+                </h3>
+                <span className="text-[9px] text-slate-500 font-mono">
+                  총 {userStats.length}명
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                {userStats.slice(10).map((user) => (
+                  <div
+                    key={user.nickname}
+                    className="p-2.5 rounded-xl bg-white border border-slate-200 flex items-center justify-between gap-2 text-xs shadow-2xs overflow-hidden box-border whitespace-nowrap break-inside-avoid"
+                  >
+                    <div className="flex items-center gap-1.5 min-w-0 flex-shrink-0 whitespace-nowrap">
+                      <RankBadge rank={user.rank} />
+                      <span className="font-extrabold text-slate-900 text-xs truncate max-w-[85px] sm:max-w-[100px] whitespace-nowrap">
+                        {user.nickname}
+                      </span>
+                      <span className="text-[9px] font-bold text-indigo-700 bg-indigo-50 px-1.5 py-0.5 rounded border border-indigo-200 flex-shrink-0 font-mono whitespace-nowrap inline-block">
+                        {user.totalMessages.toLocaleString()}회
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1 min-w-0 flex-shrink-0 whitespace-nowrap overflow-hidden">
+                      <div className="flex items-center gap-1 flex-nowrap overflow-hidden">
+                        {user.topCatchphrases && user.topCatchphrases.length > 0 ? (
+                          user.topCatchphrases.map((item, i) => (
+                            <span
+                              key={i}
+                              className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-900 font-extrabold text-[10px] whitespace-nowrap flex-shrink-0 border border-slate-200"
+                            >
+                              &quot;{item.word}&quot;{' '}
+                              <span className="text-indigo-600 font-mono text-[9px]">
+                                ({item.count})
+                              </span>
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-slate-400 italic text-[10px]">데이터 부족</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <BrandingWatermark />
+          </div>
+        )}
 
         {/* 👑 PAGE 2 (명예의 전당 Part 1): 핑퐁왕, 월급루팡, 댓글알바 */}
         <div
@@ -647,60 +1096,62 @@ ${formatHabits(userStats)}
             </div>
           </div>
 
-          {/* Body: 3 Special Cards (핑퐁왕, 월급루팡, 댓글알바) */}
+          {/* Body: Part 1 Cards (PingPong, Lupin, Comment) */}
           <div className="space-y-3 flex-shrink-0">
-            <UnifiedSpecialCard
-              title="핑퐁왕"
-              subtitle="답장 시간이 가장 짧은 사람"
-              icon={<PingPongEmoji size={28} />}
-              users={pingPongKing}
-              metricFormatter={(u) => u.avgReplyTimeFormatted}
-              category="pingpong"
-              getExamples={() => []}
-              emptyText="데이터 부족"
-            />
+            {selectedHallOfFameIds.includes('pingpong') && (
+              <UnifiedSpecialCard
+                title="핑퐁왕"
+                subtitle="답장 시간이 가장 짧은 사람"
+                icon={<PingPongEmoji size={28} />}
+                users={pingPongKing}
+                metricFormatter={(u) => u.avgReplyTimeFormatted}
+                category="pingpong"
+                getExamples={() => []}
+                emptyText="데이터 부족"
+              />
+            )}
 
-            <UnifiedSpecialCard
-              title="월급루팡"
-              subtitle="근무시간(09시~18시) 대화 작성 건수가 가장 많은 사람"
-              icon={<ThiefAvatarEmoji size={28} />}
-              users={salaryLupin}
-              metricFormatter={(u) => `${u.workHourMessages}개`}
-              category="lupin"
-              getExamples={() => []}
-              emptyText="근무시간 내 메시지가 없습니다."
-            />
+            {selectedHallOfFameIds.includes('lupin') && (
+              <UnifiedSpecialCard
+                title="월급루팡"
+                subtitle="근무시간(09시~18시) 대화 작성 건수가 가장 많은 사람"
+                icon={<ThiefAvatarEmoji size={28} />}
+                users={salaryLupin}
+                metricFormatter={(u) => `${u.workHourMessages}개`}
+                category="lupin"
+                getExamples={() => []}
+                emptyText="근무시간 내 메시지가 없습니다."
+              />
+            )}
 
-            <UnifiedSpecialCard
-              title="댓글알바"
-              subtitle="다른 사람 대화에 댓글/답글을 가장 많이 남긴 사람"
-              icon={<CommentAlbaRobotEmoji size={28} />}
-              users={commentAlba}
-              metricFormatter={(u) => `${u.commentCount}개`}
-              category="comment"
-              getExamples={() => []}
-              emptyText="댓글/답글 작성 데이터가 부족합니다."
-            />
+            {selectedHallOfFameIds.includes('comment') && (
+              <UnifiedSpecialCard
+                title="댓글알바"
+                subtitle="다른 사람 대화에 댓글/답글을 가장 많이 남긴 사람"
+                icon={<CommentAlbaRobotEmoji size={28} />}
+                users={commentAlba}
+                metricFormatter={(u) => `${u.commentCount}개`}
+                category="comment"
+                getExamples={() => []}
+                emptyText="댓글/답글 작성 데이터가 부족합니다."
+              />
+            )}
           </div>
+          <BrandingWatermark className="-mt-2 pr-1" />
         </div>
 
-        {/* 🌅 PAGE 3 (명예의 전당 Part 2): 미라클 도비, 랜선 여포 */}
+        {/* 🌅 PAGE 3 (명예의 전당): 미라클 도비 (개별 1페이지) */}
         <div
           ref={(el) => { capturePageRefs.current[2] = el; }}
           className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
         >
-          {/* Top Header Bar */}
           <div className="border-b border-slate-200 pb-2.5 flex-shrink-0">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                  <HallOfFameEmoji size={28} /> 명예의 전당
-                </h3>
-              </div>
+              <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <HallOfFameEmoji size={28} /> 명예의 전당
+              </h3>
             </div>
           </div>
-
-          {/* Body: 3 Special Cards (미라클 도비, 감자.. 좀 쪄쭐까?, 랜선 여포) */}
           <div className="space-y-3 flex-shrink-0">
             <UnifiedSpecialCard
               title="미라클 도비"
@@ -710,11 +1161,27 @@ ${formatHabits(userStats)}
               metricFormatter={(u) => `${u.morningCount}개`}
               category="morning"
               getExamples={() => []}
-              emptyText="아침 인사(모닝/몬잉/머닝) 사용자가 없거나 부족합니다."
+              emptyText="아침 인사(모닝/몬잉/머닝/모닁/마닝) 사용자가 없거나 부족합니다."
             />
+          </div>
+          <BrandingWatermark className="-mt-2 pr-1" />
+        </div>
 
+        {/* 🥔 PAGE 4 (명예의 전당): 감자... 좀 쪄줄래? (개별 1페이지) */}
+        <div
+          ref={(el) => { capturePageRefs.current[3] = el; }}
+          className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
+        >
+          <div className="border-b border-slate-200 pb-2.5 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <HallOfFameEmoji size={28} /> 명예의 전당
+              </h3>
+            </div>
+          </div>
+          <div className="space-y-3 flex-shrink-0">
             <UnifiedSpecialCard
-              title="감자.. 좀 쪄줄래?"
+              title="감자... 좀 쪄줄래?"
               subtitle="끼니를 제일 잘 챙기는 사람"
               icon={<PotatoEmoji size={28} />}
               users={potatoEmoji}
@@ -723,7 +1190,23 @@ ${formatHabits(userStats)}
               getExamples={(u) => u.potatoExamples || []}
               emptyText="맛점/맛저 인사 사용자가 없거나 부족합니다."
             />
+          </div>
+          <BrandingWatermark className="-mt-2 pr-1" />
+        </div>
 
+        {/* 💻 PAGE 5 (명예의 전당): 랜선 여포 (개별 1페이지) */}
+        <div
+          ref={(el) => { capturePageRefs.current[4] = el; }}
+          className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
+        >
+          <div className="border-b border-slate-200 pb-2.5 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <HallOfFameEmoji size={28} /> 명예의 전당
+              </h3>
+            </div>
+          </div>
+          <div className="space-y-3 flex-shrink-0">
             <UnifiedSpecialCard
               title="랜선 여포"
               subtitle="비속어·욕설 사용 건수가 가장 많은 사람"
@@ -735,25 +1218,21 @@ ${formatHabits(userStats)}
               emptyText="데이터 부족"
             />
           </div>
+          <BrandingWatermark className="-mt-2 pr-1" />
         </div>
 
-        {/* 😭 PAGE 4 (명예의 전당 Part 3): 앙앙이, 물음표 살인마 */}
+        {/* 😭 PAGE 6 (명예의 전당): 앙앙이 (개별 1페이지) */}
         <div
-          ref={(el) => { capturePageRefs.current[3] = el; }}
+          ref={(el) => { capturePageRefs.current[5] = el; }}
           className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
         >
-          {/* Top Header Bar */}
           <div className="border-b border-slate-200 pb-2.5 flex-shrink-0">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                  <HallOfFameEmoji size={28} /> 명예의 전당
-                </h3>
-              </div>
+              <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <HallOfFameEmoji size={28} /> 명예의 전당
+              </h3>
             </div>
           </div>
-
-          {/* Body: 2 Special Cards (앙앙이, 물음표 살인마) */}
           <div className="space-y-3 flex-shrink-0">
             <UnifiedSpecialCard
               title="앙앙이"
@@ -763,9 +1242,25 @@ ${formatHabits(userStats)}
               metricFormatter={(u) => `${u.cryingCount}개`}
               category="angang"
               getExamples={(u) => u.cryingExamples || []}
-              emptyText="ㅠㅠ/ㅜㅜ 사용자가 없거나 부족합니다."
+              emptyText="눈물/울음(ㅠㅠ/ㅜㅜ/ㅠ_ㅠ/ㅜ_ㅜ/ㅠ_ㅜ/ㅜ_ㅠ) 사용자가 없거나 부족합니다."
             />
+          </div>
+          <BrandingWatermark className="-mt-2 pr-1" />
+        </div>
 
+        {/* ❓ PAGE 7 (명예의 전당): 물음표 살인마 (개별 1페이지) */}
+        <div
+          ref={(el) => { capturePageRefs.current[6] = el; }}
+          className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
+        >
+          <div className="border-b border-slate-200 pb-2.5 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+                <HallOfFameEmoji size={28} /> 명예의 전당
+              </h3>
+            </div>
+          </div>
+          <div className="space-y-3 flex-shrink-0">
             <UnifiedSpecialCard
               title="물음표 살인마"
               subtitle="대화 중 '?'를 가장 많이 사용한 사람"
@@ -777,11 +1272,12 @@ ${formatHabits(userStats)}
               emptyText="물음표(?) 사용자가 없거나 부족합니다."
             />
           </div>
+          <BrandingWatermark className="-mt-2 pr-1" />
         </div>
 
-        {/* 📈 PAGE 5 (대화 성향 분석 독립 페이지): ChatCharts */}
+        {/* 📈 PAGE 8 (대화 성향 분석): ChatCharts (그래프 & 키워드 Top20 묶음 1페이지) */}
         <div
-          ref={(el) => { capturePageRefs.current[4] = el; }}
+          ref={(el) => { capturePageRefs.current[7] = el; }}
           className="w-[440px] h-auto overflow-hidden rounded-3xl p-5 bg-white border border-slate-200 text-slate-900 flex flex-col justify-start box-border relative break-inside-avoid space-y-3.5"
         >
           {/* Top Header Bar */}
@@ -802,51 +1298,230 @@ ${formatHabits(userStats)}
 
           {/* Body: ChatCharts */}
           <div className="flex-shrink-0 break-inside-avoid pt-1">
-            <ChatCharts parsingResult={parsingResult} />
+            <ChatCharts
+              parsingResult={parsingResult}
+              showTimeline={selectedChartIds.includes('timeline')}
+              showKeywords={selectedChartIds.includes('keywords')}
+            />
           </div>
+          <BrandingWatermark />
         </div>
       </div>
 
-      {/* 💛 하단 액션바 (카카오톡 분석 내용 공유) */}
-      <div className="bg-white border border-slate-200 p-4 rounded-2xl flex flex-col space-y-3 shadow-xs mt-6">
-        {/* Row 1: Title */}
-        <div className="flex items-center gap-2.5 border-b border-slate-100 pb-3">
-          <div className="p-2 rounded-xl bg-indigo-600 text-white shadow-sm flex-shrink-0">
-            <Share2 className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
-              카카오톡 분석 내용 공유
-            </h3>
-          </div>
-        </div>
-
-        {/* Row 2: Action Buttons */}
-        <div className="grid grid-cols-2 gap-2 w-full">
-          {/* 💛 카카오톡 어플 공유 버튼 */}
+      {/* 💛 하단 액션 컨트롤 센터 (카카오톡 분석 카드 선택 및 다운로드/공유) */}
+      <div className="bg-white border border-slate-200 p-4 sm:p-5 rounded-3xl flex flex-col space-y-3.5 shadow-lg mt-3 text-slate-900">
+        {/* 1. 상단 액션 버튼 2개 (카톡으로 공유하기 / 선택 카드 다운로드) */}
+        <div className="flex flex-col sm:flex-row items-center gap-2.5">
           <button
             onClick={handleShareToKakaoApp}
-            disabled={isGenerating}
-            className="w-full flex items-center justify-center gap-1.5 px-2.5 py-3 rounded-xl bg-[#FEE500] hover:bg-[#FDD800] text-[#191919] text-xs font-black shadow-md transition-all active:scale-95 border border-amber-300 disabled:opacity-50"
+            disabled={isGenerating || totalSelectedCount === 0}
+            className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-[#FEE500] hover:bg-[#FDD800] text-[#191919] text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 border border-amber-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             <MessageCircle className="w-4 h-4 text-amber-950 flex-shrink-0" />
             <span>
               {copiedStatus === 'kakaoApp'
                 ? '공유 완료!'
-                : '카톡으로 공유하기'}
+                : `카톡으로 공유하기 (${totalSelectedCount}개)`}
             </span>
           </button>
 
-          {/* 📸 이미지 다운로드 버튼 */}
           <button
             onClick={handleDownloadAllPages}
-            disabled={isGenerating}
-            className="w-full flex items-center justify-center gap-1.5 px-2.5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-black shadow-sm transition-all active:scale-95 disabled:opacity-50"
+            disabled={isGenerating || totalSelectedCount === 0}
+            className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             <Download className="w-4 h-4 flex-shrink-0" />
-            <span>이미지 다운로드</span>
+            <span>
+              {isGenerating
+                ? '이미지 생성 중...'
+                : `선택 카드 다운로드 (${totalSelectedCount}개)`}
+            </span>
           </button>
         </div>
+
+        {/* 2. 그 밑: 선택됨 카운터 & 전체 선택 / 전체 해제 버튼 */}
+        <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 pt-0.5">
+          <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl bg-indigo-50 text-indigo-700 border border-indigo-200">
+            선택됨: <span className="text-indigo-600 font-black">{totalSelectedCount}</span> / {1 + HALL_OF_FAME_ITEMS.length + CHAT_CHART_ITEMS.length}개
+          </span>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={handleSelectAll}
+              className="text-[11px] font-extrabold px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all border border-slate-200 active:scale-95 cursor-pointer"
+            >
+              전체 선택
+            </button>
+            <button
+              onClick={handleDeselectAll}
+              className="text-[11px] font-extrabold px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-500 transition-all border border-slate-200 active:scale-95 cursor-pointer"
+            >
+              전체 해제
+            </button>
+          </div>
+        </div>
+
+        {/* Section 1: 🏆 기본 리포트 */}
+        <div>
+          <button
+            type="button"
+            onClick={() => setIsOverviewSelected(!isOverviewSelected)}
+            className={`w-full p-2.5 rounded-2xl border text-left flex items-center justify-between gap-2.5 transition-all cursor-pointer select-none active:scale-[0.99] ${
+              isOverviewSelected
+                ? 'bg-gradient-to-r from-indigo-50/80 to-white border-indigo-500 ring-2 ring-indigo-500/20 shadow-2xs'
+                : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
+            }`}
+          >
+            <div className="flex items-center gap-2 min-w-0">
+              <span className="text-lg flex-shrink-0 leading-none">🏆</span>
+              <span className="font-black text-xs text-slate-900 truncate">
+                기본 리포트
+              </span>
+            </div>
+            <div
+              className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-extrabold flex-shrink-0 transition-all ${
+                isOverviewSelected
+                  ? 'bg-indigo-600 text-white shadow-2xs'
+                  : 'bg-slate-200 text-slate-400 border border-slate-300'
+              }`}
+            >
+              {isOverviewSelected ? '✓' : ''}
+            </div>
+          </button>
+        </div>
+
+        {/* Section 2: 👑 명예의 전당 (소제목 8종 개별 선택) */}
+        <div className="space-y-2 pt-1 border-t border-slate-100">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+              <span>👑 명예의 전당</span>
+              <span className="text-[10px] text-slate-500 font-mono font-normal">
+                ({selectedHallOfFameIds.length}/8)
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={selectAllHallOfFame}
+                className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all border border-slate-200 cursor-pointer"
+              >
+                명예의 전당 모두 선택
+              </button>
+              <button
+                type="button"
+                onClick={deselectAllHallOfFame}
+                className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-500 transition-all border border-slate-200 cursor-pointer"
+              >
+                해제
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 sm:gap-2">
+            {HALL_OF_FAME_ITEMS.map((item) => {
+              const isSelected = selectedHallOfFameIds.includes(item.id);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => toggleHallOfFameItem(item.id)}
+                  className={`px-2 py-2 rounded-xl border text-left flex items-center justify-between gap-1 transition-all cursor-pointer select-none active:scale-[0.98] h-9 ${
+                    isSelected
+                      ? 'bg-gradient-to-b from-indigo-50/90 to-white border-indigo-500 ring-2 ring-indigo-500/15 shadow-2xs'
+                      : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
+                  }`}
+                >
+                  <div className="flex items-center gap-1 min-w-0 flex-1 overflow-hidden">
+                    <div className="flex-shrink-0 flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <span className="font-extrabold text-[9.5px] xs:text-[10px] sm:text-[11px] text-slate-900 tracking-tighter whitespace-nowrap shrink min-w-0">
+                      {item.title}
+                    </span>
+                  </div>
+                  <div
+                    className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center text-[8px] sm:text-[9px] font-extrabold flex-shrink-0 transition-all ${
+                      isSelected
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-slate-200 text-slate-400 border border-slate-300'
+                    }`}
+                  >
+                    {isSelected ? '✓' : ''}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Section 3: 📈 대화 성향 분석 (소제목 2종 개별 선택) */}
+        <div className="space-y-2 pt-1 border-t border-slate-100">
+          <div className="flex items-center justify-between">
+            <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
+              <span>📈 대화 성향 분석</span>
+              <span className="text-[10px] text-slate-500 font-mono font-normal">
+                ({selectedChartIds.length}/2)
+              </span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={selectAllCharts}
+                className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all border border-slate-200 cursor-pointer"
+              >
+                대화성향 모두 선택
+              </button>
+              <button
+                type="button"
+                onClick={deselectAllCharts}
+                className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 hover:bg-slate-200 text-slate-500 transition-all border border-slate-200 cursor-pointer"
+              >
+                해제
+              </button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {CHAT_CHART_ITEMS.map((item) => {
+              const isSelected = selectedChartIds.includes(item.id);
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => toggleChartItem(item.id)}
+                  className={`p-2.5 rounded-xl border text-left flex items-center justify-between gap-2 transition-all cursor-pointer select-none active:scale-[0.98] h-9 ${
+                    isSelected
+                      ? 'bg-gradient-to-b from-indigo-50/90 to-white border-indigo-500 ring-2 ring-indigo-500/15 shadow-2xs'
+                      : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0 flex-1 overflow-hidden">
+                    <div className="flex-shrink-0 flex items-center justify-center">
+                      {item.icon}
+                    </div>
+                    <span className="font-extrabold text-xs text-slate-900 truncate min-w-0">
+                      {item.title}
+                    </span>
+                  </div>
+                  <div
+                    className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-extrabold flex-shrink-0 transition-all ${
+                      isSelected
+                        ? 'bg-indigo-600 text-white'
+                        : 'bg-slate-200 text-slate-400 border border-slate-300'
+                    }`}
+                  >
+                    {isSelected ? '✓' : ''}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {totalSelectedCount === 0 && (
+          <p className="text-[11px] font-extrabold text-rose-500 text-center animate-pulse pt-1">
+            ⚠️ 최소 1개 이상의 카드를 선택해 주세요.
+          </p>
+        )}
       </div>
 
       {/* 🔝 맨 위로 이동 버튼 (웹 전용) */}
@@ -1240,7 +1915,7 @@ function HighlightedProfanityText({ text, customColor }: { text: string; customC
   );
 }
 
-const MORNING_HIGHLIGHT_REGEX = /(모닝|몬잉|머닝)/gi;
+const MORNING_HIGHLIGHT_REGEX = /(모닝|몬잉|머닝|모닁|마닝)/gi;
 
 // 미라클 도비 아침 인사 하이라이트
 function HighlightedMorningText({ text, customColor }: { text: string; customColor?: string }) {
@@ -1269,7 +1944,7 @@ function HighlightedMorningText({ text, customColor }: { text: string; customCol
   );
 }
 
-const CRYING_REGEX = /([ㅠㅜ]{2,})/g;
+const CRYING_REGEX = /([ㅠㅜ][_.\-~^]?[ㅠㅜ]|[ㅠㅜ]{2,})/g;
 
 // 앙앙이 ㅠㅠ/ㅜㅜ 하이라이트
 function HighlightedCryingText({ text, customColor }: { text: string; customColor?: string }) {

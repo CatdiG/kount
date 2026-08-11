@@ -72,12 +72,12 @@ export function MiracleDobbyEmoji({ size = 28 }: { size?: number }) {
   );
 }
 
-// 🥔 사용자 제공 원본 감자.. 좀 쪄줄래? 이모티콘 컴포넌트 생성
+// 🥔 사용자 제공 원본 감자... 좀 쪄줄래? 이모티콘 컴포넌트 생성
 export function PotatoEmoji({ size = 28 }: { size?: number }) {
   return (
     <Image
       src="/potato-emoji.png"
-      alt="감자.. 좀 쪄줄래? 이모티콘"
+      alt="감자... 좀 쪄줄래? 이모티콘"
       width={size}
       height={size}
       className="inline-block align-middle object-contain pointer-events-none select-none"
@@ -262,11 +262,11 @@ export default function SpecialRankingsGrid({ specialRankings }: SpecialRankings
           metricFormatter={(u) => `${u.morningCount}개`}
           category="morning"
           getExamples={() => []}
-          emptyText="아침 인사(모닝/몬잉/머닝) 사용자가 없거나 데이터가 부족합니다."
+          emptyText="아침 인사(모닝/몬잉/머닝/모닁/마닝) 사용자가 없거나 데이터가 부족합니다."
         />
 
         <RankingCard
-          title="감자.. 좀 쪄줄래?"
+          title="감자... 좀 쪄줄래?"
           subtitle="끼니를 제일 잘 챙기는 사람"
           icon={<PotatoEmoji size={28} />}
           users={potatoEmoji}
@@ -295,7 +295,7 @@ export default function SpecialRankingsGrid({ specialRankings }: SpecialRankings
           metricFormatter={(u) => `${u.cryingCount}개`}
           category="angang"
           getExamples={(u) => u.cryingExamples || []}
-          emptyText="ㅠㅠ/ㅜㅜ 사용자가 없거나 데이터가 부족합니다."
+          emptyText="눈물/울음(ㅠㅠ/ㅜㅜ/ㅠ_ㅠ/ㅜ_ㅜ/ㅠ_ㅜ/ㅜ_ㅠ) 사용자가 없거나 데이터가 부족합니다."
         />
 
         <RankingCard
@@ -739,7 +739,7 @@ function HighlightedText({
   }
 
   if (category === 'angang') {
-    const cryingRegex = /([ㅠㅜ]{2,})/g;
+    const cryingRegex = /([ㅠㅜ][_.\-~^]?[ㅠㅜ]|[ㅠㅜ]{2,})/g;
     const parts = text.split(cryingRegex);
 
     return (
@@ -816,7 +816,7 @@ function HighlightedText({
   }
 
   if (category === 'morning') {
-    const morningRegex = /(모닝|몬잉|머닝)/gi;
+    const morningRegex = /(모닝|몬잉|머닝|모닁|마닝)/gi;
     const parts = text.split(morningRegex);
 
     return (

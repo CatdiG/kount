@@ -207,7 +207,7 @@ export default function Home() {
 
         {/* 4. 카카오톡 대화 분석 리포트 & 성향 분석 공유 */}
         {!isLoading && isUserUploaded && parsingResult && (
-          <div className="space-y-6 pt-4">
+          <div className="space-y-3 pt-[9px]">
             {/* 전체 대화 요약 카드 */}
             <section className="px-4">
               <SummaryCards parsingResult={parsingResult} />

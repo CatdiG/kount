@@ -117,7 +117,7 @@ export default function DateRangeFilter({
   };
 
   return (
-    <div className="w-full mt-1 mb-3 bg-white border border-slate-200 p-3 sm:p-4 rounded-2xl shadow-xs space-y-3">
+    <div className="w-full bg-white border border-slate-200 p-3 sm:p-4 rounded-2xl shadow-xs space-y-3">
       {/* Header Bar */}
       <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
         <div className="flex items-center gap-2">

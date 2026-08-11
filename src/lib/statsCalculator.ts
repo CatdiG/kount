@@ -130,7 +130,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
       userData.profanityExamples.push(msg.content);
     }
 
-    const cryingMatches = msg.content.match(/[ㅠㅜ]{2,}/g);
+    const cryingMatches = msg.content.match(/[ㅠㅜ][_.\-~^]?[ㅠㅜ]|[ㅠㅜ]{2,}/g);
     if (cryingMatches) {
       userData.cryingCount += 1;
       userData.cryingExamples.push(msg.content);
@@ -144,7 +144,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
       userData.questionExamples.push(msg.content);
     }
 
-    const morningMatches = msg.content.match(/모닝|몬잉|머닝/gi);
+    const morningMatches = msg.content.match(/(모닝|몬잉|머닝|모닁|마닝)/gi);
     if (morningMatches) {
       userData.morningCount += 1;
       userData.morningExamples.push(msg.content);
