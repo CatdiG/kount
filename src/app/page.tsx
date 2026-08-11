@@ -125,7 +125,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-100 sm:py-8 flex flex-col items-center justify-start selection:bg-indigo-500 selection:text-white font-sans">
       {/* Clean User View Mobile / Responsive Container */}
-      <main className="w-full sm:max-w-2xl bg-slate-50 min-h-screen sm:min-h-0 sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col relative pb-12">
+      <main className="w-full sm:max-w-2xl bg-slate-50 min-h-screen sm:min-h-0 sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col relative">
         {/* 1. Header Bar */}
         <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between shadow-2xs header-safe-padding">
           <div className="flex items-center gap-2">
@@ -209,9 +209,15 @@ export default function Home() {
             </section>
 
             {/* 카카오톡 대화 성향 분석 리포트 & 공유 카드 */}
-            <section className="px-4 pb-4">
+            <section className="px-4">
               <KakaoTalkShareCard parsingResult={parsingResult} />
             </section>
+
+            {/* Footer */}
+            <footer className="py-4 text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5">
+              <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
+              <span>Kount 카카오톡 대화 분석기</span>
+            </footer>
           </div>
         )}
       </main>
