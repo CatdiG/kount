@@ -125,7 +125,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-slate-100 sm:py-8 flex flex-col items-center justify-start selection:bg-indigo-500 selection:text-white font-sans">
       {/* Clean User View Mobile / Responsive Container */}
-      <main className="w-full sm:max-w-2xl bg-slate-50 min-h-screen sm:min-h-0 sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col relative pb-[calc(2rem+env(safe-area-inset-bottom,16px))] sm:pb-6">
+      <main className="w-full sm:max-w-2xl bg-slate-50 min-h-screen sm:min-h-0 sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col relative">
         {/* 1. Header Bar */}
         <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between shadow-2xs header-safe-padding">
           <div className="flex items-center gap-2">
@@ -194,7 +194,7 @@ export default function Home() {
 
         {/* Loading Overlay */}
         {isLoading && (
-          <div className="p-8 text-center space-y-3">
+          <div className="p-8 text-center space-y-3 flex-1 flex flex-col justify-center items-center">
             <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-sm font-bold text-slate-700">대화 데이터를 분석하고 있습니다...</p>
           </div>
@@ -202,7 +202,7 @@ export default function Home() {
 
         {/* 4. 카카오톡 대화 분석 리포트 & 성향 분석 공유 */}
         {!isLoading && isUserUploaded && parsingResult && (
-          <div className="space-y-3 pt-[9px]">
+          <div className="space-y-3 pt-[9px] flex-1">
             {/* 전체 대화 요약 카드 */}
             <section className="px-4">
               <SummaryCards parsingResult={parsingResult} />
@@ -212,14 +212,14 @@ export default function Home() {
             <section className="px-4">
               <KakaoTalkShareCard parsingResult={parsingResult} />
             </section>
-
-            {/* Footer */}
-            <footer className="py-4 -mt-[10px] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 pb-[calc(1rem+env(safe-area-inset-bottom,0px))] sm:pb-4">
-              <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
-              <span>Kount 카카오톡 대화 분석기</span>
-            </footer>
           </div>
         )}
+
+        {/* Footer (고정 하단 노출) */}
+        <footer className="pt-4 pb-[calc(1.25rem+env(safe-area-inset-bottom,12px))] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-auto flex-shrink-0">
+          <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
+          <span>Kount 카카오톡 대화 분석기</span>
+        </footer>
       </main>
     </div>
   );
