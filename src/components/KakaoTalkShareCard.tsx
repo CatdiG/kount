@@ -1348,7 +1348,7 @@ ${formatHabits(userStats)}
             <span>
               {isGenerating
                 ? '이미지 생성 중...'
-                : `선택 카드 다운로드 (${exportPageCount}페이지)`}
+                : `이미지 다운로드 (${exportPageCount}페이지)`}
             </span>
           </button>
         </div>
