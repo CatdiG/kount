@@ -216,8 +216,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Footer (하단 고정 광고 배너 높이를 고려한 safe area 여백 적용) */}
-        <footer className="pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,16px))] sm:pb-[calc(5rem+env(safe-area-inset-bottom,16px))] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-auto flex-shrink-0">
+        {/* Footer (웹 뷰 클린 패딩 적용) */}
+        <footer className="pt-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,12px))] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-auto flex-shrink-0">
           <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
           <span>Kount 카카오톡 대화 분석기</span>
         </footer>

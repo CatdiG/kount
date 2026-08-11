@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Megaphone, ExternalLink, X } from 'lucide-react';
+import { Capacitor } from '@capacitor/core';
 
 interface BottomAdBannerProps {
   /** 구글 애드센스 클라이언트 ID (예: ca-pub-XXXXXXXXXXXXXXXX) */
@@ -15,30 +16,16 @@ export default function BottomAdBanner({
   adSenseSlot = process.env.NEXT_PUBLIC_ADSENSE_SLOT || '1234567890',
 }: BottomAdBannerProps) {
   const [isVisible, setIsVisible] = useState(true);
+  const [isNativeApp, setIsNativeApp] = useState<boolean>(false);
 
   useEffect(() => {
-    // 1. 웹 환경: 구글 애드센스(Google AdSense) 스크립트 동적 로드
-    try {
-      if (typeof window !== 'undefined' && adSenseClient) {
-        const existingScript = document.getElementById('google-adsense-script');
-        if (!existingScript) {
-          const script = document.createElement('script');
-          script.id = 'google-adsense-script';
-          script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${adSenseClient}`;
-          script.async = true;
-          script.crossOrigin = 'anonymous';
-          document.head.appendChild(script);
-        }
-
-        // @ts-ignore
-        (window.adsbygoogle = window.adsbygoogle || []).push({});
-      }
-    } catch (e) {
-      console.warn('AdSense Script initialization warning:', e);
+    // 웹에서는 광고 완전 비노출, 모바일 앱(Capacitor Native) 환경에서만 노출
+    if (typeof window !== 'undefined' && Capacitor.isNativePlatform()) {
+      setIsNativeApp(true);
     }
-  }, [adSenseClient, adSenseSlot]);
+  }, []);
 
-  if (!isVisible) return null;
+  if (!isNativeApp || !isVisible) return null;
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 flex justify-center pointer-events-none px-0 sm:px-4 pb-0 sm:pb-2">
