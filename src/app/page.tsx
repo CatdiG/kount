@@ -174,11 +174,6 @@ export default function Home() {
             <FileUploader
               onDataParsed={(rawText, fileName) => handleProcessText(rawText, fileName, true)}
             />
-            {/* Footer when no file uploaded */}
-            <footer className="pt-6 text-center text-xs text-slate-400 font-medium space-y-1">
-              <p>Kount 카카오톡 대화 분석기</p>
-              <p className="text-[11px] text-slate-500 font-mono">App Version v1.0.0</p>
-            </footer>
           </section>
         )}
 
