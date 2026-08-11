@@ -1342,7 +1342,7 @@ ${formatHabits(userStats)}
           <button
             onClick={handleDownloadAllPages}
             disabled={isGenerating || totalSelectedCount === 0}
-            className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white text-xs sm:text-sm font-black shadow-md transition-all active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
             <Download className="w-4 h-4 flex-shrink-0" />
             <span>
@@ -1404,7 +1404,7 @@ ${formatHabits(userStats)}
         </div>
 
         {/* Section 2: 👑 명예의 전당 (소제목 8종 개별 선택) */}
-        <div className="space-y-2 pt-1 border-t border-slate-100">
+        <div className="space-y-2 pt-1.5 mt-[3px] border-t border-slate-100">
           <div className="flex items-center justify-between">
             <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
               <span>👑 명예의 전당</span>
@@ -1468,7 +1468,7 @@ ${formatHabits(userStats)}
         </div>
 
         {/* Section 3: 📈 대화 성향 분석 (소제목 2종 개별 선택) */}
-        <div className="space-y-2 pt-1 border-t border-slate-100">
+        <div className="space-y-2 pt-1.5 mt-[3px] border-t border-slate-100">
           <div className="flex items-center justify-between">
             <div className="text-xs font-black text-slate-900 flex items-center gap-1.5">
               <span>📈 대화 성향 분석</span>
