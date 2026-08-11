@@ -6,7 +6,7 @@ import { ParsingResult, UserStat } from '@/types/chat';
 import { PROFANITY_REGEX } from '@/lib/kakaotalkParser';
 import ChatCharts from '@/components/ChatCharts';
 import { KAKAO_JAVASCRIPT_KEY } from '@/components/KakaoScript';
-import { PingPongEmoji, KeyboardWarriorEmoji, HulkNativeEmoji, ThiefAvatarEmoji, CommentAlbaRobotEmoji, MiracleDobbyEmoji, AngangEmoji, QuestionEmoji, SpeechHabitEmoji, TrophySpeechEmoji, HallOfFameEmoji, ReportHeaderEmoji, CrystalBallEmoji } from '@/components/SpecialRankingsGrid';
+import { PingPongEmoji, KeyboardWarriorEmoji, HulkNativeEmoji, ThiefAvatarEmoji, CommentAlbaRobotEmoji, MiracleDobbyEmoji, PotatoEmoji, AngangEmoji, QuestionEmoji, SpeechHabitEmoji, TrophySpeechEmoji, HallOfFameEmoji, ReportHeaderEmoji, CrystalBallEmoji } from '@/components/SpecialRankingsGrid';
 import {
   Download,
   Share2,
@@ -74,7 +74,7 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
   } = parsingResult;
 
   const top3Chatters = userStats.slice(0, 3);
-  const { pingPongKing, keyboardWarrior, salaryLupin, commentAlba, miracleDobby, angangEmoji, questionKiller } = specialRankings;
+  const { pingPongKing, keyboardWarrior, salaryLupin, commentAlba, miracleDobby, potatoEmoji, angangEmoji, questionKiller } = specialRankings;
 
   let peakHour = 0;
   let peakCount = 0;
@@ -437,6 +437,17 @@ ${formatHabits(userStats)}
             />
 
             <UnifiedSpecialCard
+              title="감자.. 좀 쪄줄래?"
+              subtitle="끼니를 제일 잘 챙기는 사람"
+              icon={<PotatoEmoji size={32} />}
+              users={potatoEmoji}
+              metricFormatter={(u) => `${u.potatoCount}개`}
+              category="potato"
+              getExamples={(u) => u.potatoExamples || []}
+              emptyText="맛점/맛저 인사 사용자가 없거나 부족합니다."
+            />
+
+            <UnifiedSpecialCard
               title="랜선 여포"
               subtitle="비속어·욕설 사용 건수가 가장 많은 사람"
               icon={<KeyboardWarriorEmoji size={32} />}
@@ -689,7 +700,7 @@ ${formatHabits(userStats)}
             </div>
           </div>
 
-          {/* Body: 2 Special Cards (미라클 도비, 랜선 여포) */}
+          {/* Body: 3 Special Cards (미라클 도비, 감자.. 좀 쪄쭐까?, 랜선 여포) */}
           <div className="space-y-3 flex-shrink-0">
             <UnifiedSpecialCard
               title="미라클 도비"
@@ -700,6 +711,17 @@ ${formatHabits(userStats)}
               category="morning"
               getExamples={() => []}
               emptyText="아침 인사(모닝/몬잉/머닝) 사용자가 없거나 부족합니다."
+            />
+
+            <UnifiedSpecialCard
+              title="감자.. 좀 쪄줄래?"
+              subtitle="끼니를 제일 잘 챙기는 사람"
+              icon={<PotatoEmoji size={28} />}
+              users={potatoEmoji}
+              metricFormatter={(u) => `${u.potatoCount}개`}
+              category="potato"
+              getExamples={(u) => u.potatoExamples || []}
+              emptyText="맛점/맛저 인사 사용자가 없거나 부족합니다."
             />
 
             <UnifiedSpecialCard
@@ -851,7 +873,7 @@ function UnifiedKeyboardExamplesList({
     users: UserStat[];
     examples: { nickname: string; content: string }[];
   };
-  category: 'keyboard' | 'angang' | 'question' | 'morning';
+  category: 'keyboard' | 'angang' | 'question' | 'morning' | 'potato';
 }) {
   const [expandedUserNicknames, setExpandedUserNicknames] = React.useState<Record<string, boolean>>({});
 
@@ -887,6 +909,11 @@ function UnifiedKeyboardExamplesList({
     { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', quote: 'text-amber-600', color: 'amber' },
     { bg: 'bg-fuchsia-50/95 border-fuchsia-200/90', badge: 'text-fuchsia-950', quote: 'text-fuchsia-600', color: 'fuchsia' },
     { bg: 'bg-teal-50/95 border-teal-200/90', badge: 'text-teal-950', quote: 'text-teal-600', color: 'teal' },
+  ] : category === 'potato' ? [
+    { bg: 'bg-orange-50/95 border-orange-200/90', badge: 'text-orange-950', quote: 'text-orange-600', color: 'orange' },
+    { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', quote: 'text-amber-600', color: 'amber' },
+    { bg: 'bg-rose-50/95 border-rose-200/90', badge: 'text-rose-950', quote: 'text-rose-600', color: 'rose' },
+    { bg: 'bg-fuchsia-50/95 border-fuchsia-200/90', badge: 'text-fuchsia-950', quote: 'text-fuchsia-600', color: 'fuchsia' },
   ] : [
     { bg: 'bg-emerald-50/95 border-emerald-200/90', badge: 'text-emerald-950', quote: 'text-emerald-600', color: 'emerald' },
     { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', quote: 'text-amber-600', color: 'amber' },
@@ -926,6 +953,8 @@ function UnifiedKeyboardExamplesList({
                       <HighlightedQuestionText text={exItem.content} customColor={style.color} />
                     ) : category === 'morning' ? (
                       <HighlightedMorningText text={exItem.content} customColor={style.color} />
+                    ) : category === 'potato' ? (
+                      <HighlightedPotatoText text={exItem.content} customColor={style.color} />
                     ) : (
                       <HighlightedProfanityText text={exItem.content} customColor={style.color} />
                     )}
@@ -975,7 +1004,7 @@ function UnifiedSpecialCard({
   icon: React.ReactNode;
   users: UserStat[];
   metricFormatter: (u: UserStat) => string;
-  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'angang' | 'question';
+  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'potato' | 'angang' | 'question';
   getExamples: (u: UserStat) => string[];
   emptyText: string;
 }) {
@@ -983,6 +1012,7 @@ function UnifiedSpecialCard({
   const isAngang = category === 'angang';
   const isQuestion = category === 'question';
   const isMorning = category === 'morning';
+  const isPotato = category === 'potato';
   const displayUsers = users || [];
   const medals = ['🥇 1위', '🥈 2위', '🥉 3위'];
 
@@ -1005,15 +1035,15 @@ function UnifiedSpecialCard({
       </div>
 
       {displayUsers.length > 0 ? (
-        (isKeyboard || isAngang || isQuestion || isMorning) ? (
+        (isKeyboard || isAngang || isQuestion || isMorning || isPotato) ? (
           <div className="space-y-1.5">
             {(() => {
               const groupMap = new Map<number, { rank: number; count: number; users: UserStat[]; examples: { nickname: string; content: string }[] }>();
 
               displayUsers.forEach((u) => {
-                const r = isKeyboard ? (u.profanityRank || 1) : isAngang ? (u.cryingRank || 1) : isMorning ? (u.morningRank || 1) : (u.questionRank || 1);
-                const cnt = isKeyboard ? u.profanityCount : isAngang ? u.cryingCount : isMorning ? u.morningCount : u.questionCount;
-                const exList = isKeyboard ? u.profanityExamples : isAngang ? u.cryingExamples : isMorning ? u.morningExamples : u.questionExamples;
+                const r = isKeyboard ? (u.profanityRank || 1) : isAngang ? (u.cryingRank || 1) : isMorning ? (u.morningRank || 1) : isPotato ? (u.potatoRank || 1) : (u.questionRank || 1);
+                const cnt = isKeyboard ? u.profanityCount : isAngang ? u.cryingCount : isMorning ? u.morningCount : isPotato ? u.potatoCount : u.questionCount;
+                const exList = isKeyboard ? u.profanityExamples : isAngang ? u.cryingExamples : isMorning ? u.morningExamples : isPotato ? u.potatoExamples : u.questionExamples;
 
                 if (!groupMap.has(r)) {
                   groupMap.set(r, {
@@ -1032,9 +1062,7 @@ function UnifiedSpecialCard({
                 }
               });
 
-              const specialGroups = Array.from(groupMap.values()).sort((a, b) => a.rank - b.rank).slice(0, 3);
-
-              return specialGroups.map((group) => {
+              return Array.from(groupMap.values()).sort((a, b) => a.rank - b.rank).slice(0, 3).map((group) => {
                 const isTie = group.users.length > 1;
                 const nicknamesStr = group.users.map((u) => u.nickname).join(', ');
                 const bgStyle = 'bg-white border-slate-200 text-slate-900';
@@ -1125,8 +1153,8 @@ function UnifiedSpecialCard({
 }
 
 function getShareMarkClass(color: string | undefined, defaultCategory: string) {
-  const c = color || (defaultCategory === 'keyboard' ? 'rose' : defaultCategory === 'angang' ? 'sky' : defaultCategory === 'question' ? 'purple' : defaultCategory === 'morning' ? 'emerald' : 'indigo');
-  const px = (defaultCategory === 'keyboard' || defaultCategory === 'morning') ? 'px-0' : 'px-0.5';
+  const c = color || (defaultCategory === 'keyboard' ? 'rose' : defaultCategory === 'angang' ? 'sky' : defaultCategory === 'question' ? 'purple' : defaultCategory === 'morning' ? 'emerald' : defaultCategory === 'potato' ? 'orange' : 'indigo');
+  const px = (defaultCategory === 'keyboard' || defaultCategory === 'morning' || defaultCategory === 'potato') ? 'px-0' : 'px-0.5';
 
   switch (c) {
     case 'rose':
@@ -1135,6 +1163,8 @@ function getShareMarkClass(color: string | undefined, defaultCategory: string) {
       return `bg-sky-200/90 text-sky-950 ${px} py-0.5 rounded-xs font-black border-b border-sky-400`;
     case 'amber':
       return `bg-amber-200/90 text-amber-950 ${px} py-0.5 rounded-xs font-black border-b border-amber-400`;
+    case 'yellow':
+      return `bg-yellow-200/90 text-yellow-950 ${px} py-0.5 rounded-xs font-black border-b border-yellow-400`;
     case 'emerald':
       return `bg-emerald-200/90 text-emerald-950 ${px} py-0.5 rounded-xs font-black border-b border-emerald-400`;
     case 'purple':
@@ -1152,6 +1182,35 @@ function getShareMarkClass(color: string | undefined, defaultCategory: string) {
     default:
       return `bg-indigo-200/90 text-indigo-950 ${px} py-0.5 rounded-xs font-black border-b border-indigo-400`;
   }
+}
+
+const POTATO_HIGHLIGHT_REGEX = /(맛점|맛쩜|맛저|맛쩌)/gi;
+
+// 감자.. 좀 쪄쭐까? 끼니 하이라이트
+function HighlightedPotatoText({ text, customColor }: { text: string; customColor?: string }) {
+  const parts = text.split(POTATO_HIGHLIGHT_REGEX);
+  const markClassName = getShareMarkClass(customColor, 'potato');
+
+  return (
+    <span>
+      {parts.map((part, i) => {
+        const isMatch = POTATO_HIGHLIGHT_REGEX.test(part);
+        POTATO_HIGHLIGHT_REGEX.lastIndex = 0;
+
+        if (isMatch) {
+          return (
+            <mark
+              key={i}
+              className={markClassName}
+            >
+              {part}
+            </mark>
+          );
+        }
+        return part;
+      })}
+    </span>
+  );
 }
 
 // 헐크 비속어 하이라이트 (px-0 적용)

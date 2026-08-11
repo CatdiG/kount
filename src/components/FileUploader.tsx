@@ -6,9 +6,10 @@ import { checkAndRequestPermissions, readWebFileAsText } from '@/lib/filesystemU
 
 interface FileUploaderProps {
   onDataParsed: (rawText: string, fileName: string) => void;
+  isUploaded?: boolean;
 }
 
-export default function FileUploader({ onDataParsed }: FileUploaderProps) {
+export default function FileUploader({ onDataParsed, isUploaded = false }: FileUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [loadedFileName, setLoadedFileName] = useState<string | null>(null);
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -57,14 +58,16 @@ export default function FileUploader({ onDataParsed }: FileUploaderProps) {
     setIsDragging(false);
   };
 
+  const hasFile = isUploaded || !!loadedFileName;
+
   return (
-    <div className="w-full max-w-md mx-auto my-4 text-center">
+    <div className="w-full max-w-md mx-auto my-2 text-center">
       <div
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onClick={() => fileInputRef.current?.click()}
-        className={`relative cursor-pointer p-4 text-center space-y-4 transition-all duration-300 rounded-2xl ${
+        className={`relative cursor-pointer p-4 text-center space-y-3 transition-all duration-300 rounded-2xl ${
           isDragging ? 'bg-amber-50/80 ring-2 ring-amber-400' : ''
         }`}
       >
@@ -80,34 +83,52 @@ export default function FileUploader({ onDataParsed }: FileUploaderProps) {
           }}
         />
 
-        {/* Bouncing Upload Icon */}
-        <div className="w-16 h-16 rounded-full bg-amber-100/90 border border-amber-300 flex items-center justify-center mx-auto text-amber-950 shadow-xs">
-          <UploadCloud className="w-8 h-8 text-amber-950 stroke-[2.5] animate-bounce" />
-        </div>
+        {/* 대화 파일 업로드 전(공유한 대화가 없을 때만) 아이콘 및 안내 문구 노출 */}
+        {!hasFile && (
+          <>
+            {/* Bouncing Upload Icon */}
+            <div className="w-16 h-16 rounded-full bg-amber-100/90 border border-amber-300 flex items-center justify-center mx-auto text-amber-950 shadow-xs">
+              <UploadCloud className="w-8 h-8 text-amber-950 stroke-[2.5] animate-bounce" />
+            </div>
 
-        {/* Text */}
-        <div className="space-y-1.5">
-          <h2 className="text-lg font-black text-slate-800 tracking-tight">
-            공유한 대화가 없습니다.
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-500 font-medium whitespace-nowrap">
-            카카오톡 대화 내보내기 파일(.txt / .csv)을 업로드하거나 앱으로 공유해 주세요.
-          </p>
-        </div>
+            {/* Text */}
+            <div className="space-y-1.5">
+              <h2 className="text-lg font-black text-slate-800 tracking-tight">
+                공유한 대화가 없습니다.
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-500 font-medium whitespace-nowrap">
+                카카오톡 대화 내보내기 파일(.txt / .csv)을 업로드하거나 앱으로 공유해 주세요.
+              </p>
+            </div>
 
-        {/* Action Button & Drag hint */}
-        <div className="pt-2 space-y-2 text-center">
-          <button
-            type="button"
-            className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#FEE500] hover:bg-[#FDD800] text-[#191919] text-xs font-black shadow-sm transition-all active:scale-95 border border-amber-300 cursor-pointer"
-          >
-            <Share2 className="w-4 h-4 text-amber-950 flex-shrink-0" />
-            <span>카카오톡 대화 파일 선택하기</span>
-          </button>
-          <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
-            (또는 파일을 이 곳으로 드래그 앤 드롭 하세요)
-          </p>
-        </div>
+            {/* Action Button & Drag hint */}
+            <div className="pt-2 space-y-2 text-center">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-1.5 py-2.5 px-4 rounded-xl bg-[#FEE500] hover:bg-[#FDD800] text-[#191919] text-xs font-black shadow-sm transition-all active:scale-95 border border-amber-300 cursor-pointer"
+              >
+                <Share2 className="w-4 h-4 text-amber-950 flex-shrink-0" />
+                <span>카카오톡 대화 파일 선택하기</span>
+              </button>
+              <p className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
+                (또는 파일을 이 곳으로 드래그 앤 드롭 하세요)
+              </p>
+            </div>
+          </>
+        )}
+
+        {/* 대화 파일이 업로드/공유된 상태에서의 콤팩트 재선택 버튼 */}
+        {hasFile && (
+          <div className="py-1">
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-all active:scale-95 border border-slate-200 cursor-pointer"
+            >
+              <Share2 className="w-3.5 h-3.5 text-slate-600 flex-shrink-0" />
+              <span>다른 대화 파일 선택하기</span>
+            </button>
+          </div>
+        )}
 
         {/* Status Messages */}
         {statusMessage && (

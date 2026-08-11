@@ -147,7 +147,7 @@ export default function AdminPage() {
   return (
     <main className="flex-1 pb-16 bg-slate-950 text-slate-100 min-h-screen">
       {/* 1. Admin Top Header */}
-      <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg">
+      <header className="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 shadow-lg header-safe-padding">
         <div className="max-w-4xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/30">

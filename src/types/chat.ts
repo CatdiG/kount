@@ -46,6 +46,11 @@ export interface UserStat {
   morningRank?: number;
   morningExamples?: string[];
 
+  // 감자.. 좀 쪄쭐까? (Meal/food messages ranking)
+  potatoCount: number;
+  potatoRank?: number;
+  potatoExamples?: string[];
+
   // 앙앙이 (Ang-ang-i - Crying emoji ranking)
   cryingCount: number;
   cryingRank?: number;
@@ -78,6 +83,7 @@ export interface SpecialRankings {
   salaryLupin: UserStat[];
   commentAlba: UserStat[];
   miracleDobby: UserStat[];
+  potatoEmoji: UserStat[];
   angangEmoji: UserStat[];
   questionKiller: UserStat[];
 }

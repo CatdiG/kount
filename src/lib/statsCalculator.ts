@@ -27,6 +27,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
         salaryLupin: [],
         commentAlba: [],
         miracleDobby: [],
+        potatoEmoji: [],
         angangEmoji: [],
         questionKiller: [],
       },
@@ -58,6 +59,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
       cryingCount: number;
       questionCount: number;
       morningCount: number;
+      potatoCount: number;
       workHourMessages: number;
       commentCount: number;
       activeDays: Set<string>;
@@ -69,6 +71,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
       cryingExamples: string[];
       questionExamples: string[];
       morningExamples: string[];
+      potatoExamples: string[];
       workHourExamples: { timeStr: string; content: string }[];
       allContentMessages: string[];
     }
@@ -98,6 +101,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
         cryingCount: 0,
         questionCount: 0,
         morningCount: 0,
+        potatoCount: 0,
         workHourMessages: 0,
         commentCount: 0,
         activeDays: new Set<string>(),
@@ -109,6 +113,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
         cryingExamples: [],
         questionExamples: [],
         morningExamples: [],
+        potatoExamples: [],
         workHourExamples: [],
         allContentMessages: [],
       });
@@ -143,6 +148,12 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
     if (morningMatches) {
       userData.morningCount += 1;
       userData.morningExamples.push(msg.content);
+    }
+
+    const potatoMatches = msg.content.match(/(맛점|맛쩜|맛저|맛쩌)/gi);
+    if (potatoMatches) {
+      userData.potatoCount += 1;
+      userData.potatoExamples.push(msg.content);
     }
 
     // Work hour check: 09:00 ~ 18:00
@@ -260,6 +271,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
     const cryingExamples = data.cryingExamples;
     const questionExamples = data.questionExamples;
     const morningExamples = data.morningExamples;
+    const potatoExamples = data.potatoExamples;
     const workHourExamples = data.workHourExamples.slice(0, 5);
 
     return {
@@ -280,6 +292,8 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
       questionExamples,
       morningCount: data.morningCount,
       morningExamples,
+      potatoCount: data.potatoCount,
+      potatoExamples,
       workHourMessages: data.workHourMessages,
       workHourRatio,
       workHourExamples,
@@ -379,6 +393,23 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
 
   const miracleDobby = morningCandidates.filter((u) => (u.morningRank || 99) <= 3);
 
+  const potatoCandidates = userStats.filter(
+    (u) => u.potatoCount > 0 && !u.nickname.includes('오픈채팅봇')
+  );
+  potatoCandidates.sort((a, b) => b.potatoCount - a.potatoCount || b.totalMessages - a.totalMessages);
+
+  potatoCandidates.forEach((stat, idx) => {
+    if (idx === 0) {
+      stat.potatoRank = 1;
+    } else if (stat.potatoCount === potatoCandidates[idx - 1].potatoCount) {
+      stat.potatoRank = potatoCandidates[idx - 1].potatoRank;
+    } else {
+      stat.potatoRank = (potatoCandidates[idx - 1].potatoRank || 1) + 1;
+    }
+  });
+
+  const potatoEmoji = potatoCandidates.filter((u) => (u.potatoRank || 99) <= 3);
+
   const angangCandidates = userStats.filter((u) => u.cryingCount > 0);
   angangCandidates.sort((a, b) => b.cryingCount - a.cryingCount || b.totalMessages - a.totalMessages);
 
@@ -415,6 +446,7 @@ export function calculateChatStats(messages: ChatMessage[]): ParsingResult {
     salaryLupin,
     commentAlba,
     miracleDobby,
+    potatoEmoji,
     angangEmoji,
     questionKiller,
   };

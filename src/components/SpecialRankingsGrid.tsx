@@ -72,6 +72,20 @@ export function MiracleDobbyEmoji({ size = 28 }: { size?: number }) {
   );
 }
 
+// 🥔 사용자 제공 원본 감자.. 좀 쪄줄래? 이모티콘 컴포넌트 생성
+export function PotatoEmoji({ size = 28 }: { size?: number }) {
+  return (
+    <Image
+      src="/potato-emoji.png"
+      alt="감자.. 좀 쪄줄래? 이모티콘"
+      width={size}
+      height={size}
+      className="inline-block align-middle object-contain pointer-events-none select-none"
+      unoptimized
+    />
+  );
+}
+
 // 😭 사용자 제공 원본 앙앙이 슬픈 이모티콘 컴포넌트 생성
 export function AngangEmoji({ size = 28 }: { size?: number }) {
   return (
@@ -185,7 +199,7 @@ export function PingPongEmoji({ size = 28 }: { size?: number }) {
 }
 
 export default function SpecialRankingsGrid({ specialRankings }: SpecialRankingsGridProps) {
-  const { pingPongKing, keyboardWarrior, salaryLupin, commentAlba, miracleDobby, angangEmoji, questionKiller } = specialRankings;
+  const { pingPongKing, keyboardWarrior, salaryLupin, commentAlba, miracleDobby, potatoEmoji, angangEmoji, questionKiller } = specialRankings;
 
   return (
     <div className="w-full max-w-6xl mx-auto my-10 space-y-6">
@@ -252,6 +266,17 @@ export default function SpecialRankingsGrid({ specialRankings }: SpecialRankings
         />
 
         <RankingCard
+          title="감자.. 좀 쪄줄래?"
+          subtitle="끼니를 제일 잘 챙기는 사람"
+          icon={<PotatoEmoji size={28} />}
+          users={potatoEmoji}
+          metricFormatter={(u) => `${u.potatoCount}개`}
+          category="potato"
+          getExamples={(u) => u.potatoExamples || []}
+          emptyText="맛점/맛저 인사 사용자가 없거나 데이터가 부족합니다."
+        />
+
+        <RankingCard
           title="랜선 여포"
           subtitle="비속어·욕설 사용 건수가 가장 많은 사람"
           icon={<KeyboardWarriorEmoji size={28} />}
@@ -294,7 +319,7 @@ interface RankingCardProps {
   icon: React.ReactNode;
   users: UserStat[];
   metricFormatter: (u: UserStat) => string;
-  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'angang' | 'question';
+  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'potato' | 'angang' | 'question';
   getExamples: (u: UserStat) => string[];
   emptyText: string;
 }
@@ -311,7 +336,7 @@ function KeyboardExamplesList({
   category,
 }: {
   group: SpecialGroupType;
-  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'angang' | 'question';
+  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'potato' | 'angang' | 'question';
 }) {
   const [expandedUserNicknames, setExpandedUserNicknames] = React.useState<Record<string, boolean>>({});
 
@@ -352,6 +377,11 @@ function KeyboardExamplesList({
     { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', num: 'text-amber-600', color: 'amber' },
     { bg: 'bg-lime-50/95 border-lime-200/90', badge: 'text-lime-950', num: 'text-lime-600', color: 'lime' },
     { bg: 'bg-teal-50/95 border-teal-200/90', badge: 'text-teal-950', num: 'text-teal-600', color: 'teal' },
+  ] : category === 'potato' ? [
+    { bg: 'bg-orange-50/95 border-orange-200/90', badge: 'text-orange-950', num: 'text-orange-600', color: 'orange' },
+    { bg: 'bg-amber-50/95 border-amber-200/90', badge: 'text-amber-950', num: 'text-amber-600', color: 'amber' },
+    { bg: 'bg-rose-50/95 border-rose-200/90', badge: 'text-rose-950', num: 'text-rose-600', color: 'rose' },
+    { bg: 'bg-fuchsia-50/95 border-fuchsia-200/90', badge: 'text-fuchsia-950', num: 'text-fuchsia-600', color: 'fuchsia' },
   ] : [
     { bg: 'bg-indigo-50/90 border-indigo-200/80', badge: 'text-indigo-950', num: 'text-indigo-600', color: 'indigo' },
     { bg: 'bg-amber-50/90 border-amber-200/80', badge: 'text-amber-950', num: 'text-amber-600', color: 'amber' },
@@ -361,7 +391,7 @@ function KeyboardExamplesList({
 
   return (
     <div className="pt-2 border-t border-slate-200/80 space-y-2">
-      <div className={`space-y-2 p-2 rounded-xl border ${category === 'keyboard' ? 'bg-rose-50/60 border-rose-200/80' : category === 'angang' ? 'bg-sky-50/60 border-sky-200/80' : category === 'question' ? 'bg-purple-50/60 border-purple-200/80' : category === 'morning' ? 'bg-emerald-50/60 border-emerald-200/80' : 'bg-slate-100/60 border-slate-200/80'}`}>
+      <div className={`space-y-2 p-2 rounded-xl border ${category === 'keyboard' ? 'bg-rose-50/60 border-rose-200/80' : category === 'angang' ? 'bg-sky-50/60 border-sky-200/80' : category === 'question' ? 'bg-purple-50/60 border-purple-200/80' : category === 'morning' ? 'bg-emerald-50/60 border-emerald-200/80' : category === 'potato' ? 'bg-orange-50/60 border-orange-200/80' : 'bg-slate-100/60 border-slate-200/80'}`}>
         {userExamplesMap.map((uItem, uIdx) => {
           const isUserExpanded = !!expandedUserNicknames[uItem.user.nickname];
           const visibleExs = isUserExpanded ? uItem.examples : uItem.examples.slice(0, 3);
@@ -507,18 +537,19 @@ function RankingCard({
 
       {users.length === 0 ? (
         <div className="text-xs text-slate-400 py-6 text-center italic">{emptyText}</div>
-      ) : (category === 'keyboard' || category === 'angang' || category === 'question' || category === 'morning') ? (
+      ) : (category === 'keyboard' || category === 'angang' || category === 'question' || category === 'morning' || category === 'potato') ? (
         <div className="space-y-3 max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
           {(() => {
             const isKeyboard = category === 'keyboard';
             const isAngang = category === 'angang';
             const isMorning = category === 'morning';
+            const isPotato = category === 'potato';
             const groupMap = new Map<number, SpecialGroupType>();
 
             users.forEach((u) => {
-              const r = isKeyboard ? (u.profanityRank || 1) : isAngang ? (u.cryingRank || 1) : isMorning ? (u.morningRank || 1) : (u.questionRank || 1);
-              const cnt = isKeyboard ? u.profanityCount : isAngang ? u.cryingCount : isMorning ? u.morningCount : u.questionCount;
-              const exList = isKeyboard ? u.profanityExamples : isAngang ? u.cryingExamples : isMorning ? u.morningExamples : u.questionExamples;
+              const r = isKeyboard ? (u.profanityRank || 1) : isAngang ? (u.cryingRank || 1) : isMorning ? (u.morningRank || 1) : isPotato ? (u.potatoRank || 1) : (u.questionRank || 1);
+              const cnt = isKeyboard ? u.profanityCount : isAngang ? u.cryingCount : isMorning ? u.morningCount : isPotato ? u.potatoCount : u.questionCount;
+              const exList = isKeyboard ? u.profanityExamples : isAngang ? u.cryingExamples : isMorning ? u.morningExamples : isPotato ? u.potatoExamples : u.questionExamples;
 
               if (!groupMap.has(r)) {
                 groupMap.set(r, {
@@ -630,8 +661,8 @@ function RankingCard({
 }
 
 function getMarkClass(color: string | undefined, defaultCategory: string) {
-  const c = color || (defaultCategory === 'keyboard' ? 'rose' : defaultCategory === 'angang' ? 'sky' : defaultCategory === 'question' ? 'purple' : defaultCategory === 'morning' ? 'emerald' : 'indigo');
-  const px = (defaultCategory === 'keyboard' || defaultCategory === 'morning') ? 'px-0' : 'px-0.5';
+  const c = color || (defaultCategory === 'keyboard' ? 'rose' : defaultCategory === 'angang' ? 'sky' : defaultCategory === 'question' ? 'purple' : defaultCategory === 'morning' ? 'emerald' : defaultCategory === 'potato' ? 'orange' : 'indigo');
+  const px = (defaultCategory === 'keyboard' || defaultCategory === 'morning' || defaultCategory === 'potato') ? 'px-0' : 'px-0.5';
 
   switch (c) {
     case 'rose':
@@ -640,6 +671,8 @@ function getMarkClass(color: string | undefined, defaultCategory: string) {
       return `bg-sky-200/90 text-sky-950 ${px} py-0.5 rounded-xs font-black border-b border-sky-400`;
     case 'amber':
       return `bg-amber-200/90 text-amber-950 ${px} py-0.5 rounded-xs font-black border-b border-amber-400`;
+    case 'yellow':
+      return `bg-yellow-200/90 text-yellow-950 ${px} py-0.5 rounded-xs font-black border-b border-yellow-400`;
     case 'emerald':
       return `bg-emerald-200/90 text-emerald-950 ${px} py-0.5 rounded-xs font-black border-b border-emerald-400`;
     case 'purple':
@@ -665,7 +698,7 @@ function HighlightedText({
   customColor,
 }: {
   text: string;
-  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'angang' | 'question';
+  category: 'pingpong' | 'keyboard' | 'lupin' | 'comment' | 'morning' | 'potato' | 'angang' | 'question';
   customColor?: string;
 }) {
   const markClassName = getMarkClass(customColor, category);
@@ -797,6 +830,32 @@ function HighlightedText({
               <mark
                 key={i}
                 className="bg-emerald-200/90 text-emerald-950 px-0 py-0.5 rounded-xs font-black border-b border-emerald-400"
+              >
+                {part}
+              </mark>
+            );
+          }
+          return part;
+        })}
+      </span>
+    );
+  }
+
+  if (category === 'potato') {
+    const potatoRegex = /(맛점|맛쩜|맛저|맛쩌)/gi;
+    const parts = text.split(potatoRegex);
+
+    return (
+      <span>
+        {parts.map((part, i) => {
+          const isMatch = potatoRegex.test(part);
+          potatoRegex.lastIndex = 0;
+
+          if (isMatch) {
+            return (
+              <mark
+                key={i}
+                className={markClassName}
               >
                 {part}
               </mark>

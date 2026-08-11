@@ -13,6 +13,15 @@ body {
   min-height: 100vh;
 }
 
+/* Mobile Status Bar & Notch Safe Area Utilities */
+.pt-safe-top {
+  padding-top: max(0.75rem, env(safe-area-inset-top, 0.75rem));
+}
+
+.header-safe-padding {
+  padding-top: calc(0.75rem + env(safe-area-inset-top, 0px));
+}
+
 /* Custom Scrollbar for Light Theme */
 ::-webkit-scrollbar {
   width: 8px;

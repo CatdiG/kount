@@ -127,7 +127,7 @@ export default function Home() {
       {/* Clean User View Mobile / Responsive Container */}
       <main className="w-full sm:max-w-2xl bg-slate-50 min-h-screen sm:min-h-0 sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col relative pb-12">
         {/* 1. Header Bar */}
-        <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 py-3 flex items-center justify-between shadow-2xs">
+        <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between shadow-2xs header-safe-padding">
           <div className="flex items-center gap-2">
             <Image
               src="/kount-app-logo.png"
@@ -185,9 +185,6 @@ export default function Home() {
         {/* 3. 분석 기간 필터 */}
         {isUserUploaded && allMessages.length > 0 && (
           <section className="px-4 pt-3">
-            <FileUploader
-              onDataParsed={(rawText, fileName) => handleProcessText(rawText, fileName, true)}
-            />
             <DateRangeFilter
               minDateStr={minDateStr}
               maxDateStr={maxDateStr}

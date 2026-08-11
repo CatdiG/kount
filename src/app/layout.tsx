@@ -25,7 +25,7 @@ export const metadata: Metadata = {
     title: "카톡분석기",
   },
   icons: {
-    icon: "/icon-192.png",
+    icon: "/kount-app-logo.png",
     apple: "/apple-touch-icon.png",
   },
 };
