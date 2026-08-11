@@ -191,6 +191,20 @@ export default function KakaoTalkShareCard({ parsingResult }: KakaoTalkShareCard
     hourlyDistribution,
   } = parsingResult;
 
+  let exportPageCount = 0;
+  if (isOverviewSelected) {
+    exportPageCount += userStats.length > 10 ? 2 : 1;
+  }
+  if (['pingpong', 'lupin', 'comment'].some((id) => selectedHallOfFameIds.includes(id))) {
+    exportPageCount += 1;
+  }
+  if (selectedHallOfFameIds.includes('morning')) exportPageCount += 1;
+  if (selectedHallOfFameIds.includes('potato')) exportPageCount += 1;
+  if (selectedHallOfFameIds.includes('keyboard')) exportPageCount += 1;
+  if (selectedHallOfFameIds.includes('angang')) exportPageCount += 1;
+  if (selectedHallOfFameIds.includes('question')) exportPageCount += 1;
+  if (selectedChartIds.length > 0) exportPageCount += 1;
+
   const top3Chatters = userStats.slice(0, 3);
   const { pingPongKing, keyboardWarrior, salaryLupin, commentAlba, miracleDobby, potatoEmoji, angangEmoji, questionKiller } = specialRankings;
 
@@ -1321,7 +1335,7 @@ ${formatHabits(userStats)}
             <span>
               {copiedStatus === 'kakaoApp'
                 ? '공유 완료!'
-                : `카톡으로 공유하기 (${totalSelectedCount}개)`}
+                : `카톡으로 공유하기 (${exportPageCount}페이지)`}
             </span>
           </button>
 
@@ -1334,7 +1348,7 @@ ${formatHabits(userStats)}
             <span>
               {isGenerating
                 ? '이미지 생성 중...'
-                : `선택 카드 다운로드 (${totalSelectedCount}개)`}
+                : `선택 카드 다운로드 (${exportPageCount}페이지)`}
             </span>
           </button>
         </div>
