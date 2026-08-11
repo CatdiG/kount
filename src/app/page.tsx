@@ -124,7 +124,7 @@ export default function Home() {
   const maxDateStr = isUserUploaded && allMessages.length > 0 ? allMessages[allMessages.length - 1].dateStr : '';
 
   return (
-    <div className="min-h-screen bg-slate-100 sm:py-8 flex flex-col items-center justify-start selection:bg-indigo-500 selection:text-white font-sans">
+    <div className="min-h-screen bg-slate-100 sm:py-8 flex flex-col items-center justify-start selection:bg-indigo-500 selection:text-white font-sans pb-[calc(4.5rem+env(safe-area-inset-bottom,16px))]">
       {/* Clean User View Mobile / Responsive Container */}
       <main className="w-full sm:max-w-2xl bg-slate-50 min-h-screen sm:min-h-0 sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col relative">
         {/* 1. Header Bar */}
@@ -216,8 +216,8 @@ export default function Home() {
           </div>
         )}
 
-        {/* Footer (하단 고정 광고 배너 높이를 고려한 safe area 여백 적용) */}
-        <footer className="pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,16px))] sm:pb-[calc(5rem+env(safe-area-inset-bottom,16px))] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-auto flex-shrink-0">
+        {/* Footer (하단 여백 최소화: 텍스트 직후 여백 0/최소화) */}
+        <footer className="pt-3 pb-2 mb-0 text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-auto flex-shrink-0">
           <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
           <span>Kount 카카오톡 대화 분석기</span>
         </footer>
