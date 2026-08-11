@@ -1342,9 +1342,9 @@ ${formatHabits(userStats)}
           <button
             onClick={handleDownloadAllPages}
             disabled={isGenerating || totalSelectedCount === 0}
-            className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-sky-200 hover:bg-sky-300 text-sky-950 text-xs sm:text-sm font-black shadow-xs transition-all active:scale-95 border border-sky-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+            className="w-full sm:flex-1 flex items-center justify-center gap-2 px-4 py-3.5 rounded-2xl bg-purple-200 hover:bg-purple-300 text-purple-950 text-xs sm:text-sm font-black shadow-xs transition-all active:scale-95 border border-purple-300 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
           >
-            <Download className="w-4 h-4 text-sky-950 flex-shrink-0" />
+            <Download className="w-4 h-4 text-purple-950 flex-shrink-0" />
             <span>
               {isGenerating
                 ? '이미지 생성 중...'
