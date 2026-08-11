@@ -209,15 +209,9 @@ export default function Home() {
             </section>
 
             {/* 카카오톡 대화 성향 분석 리포트 & 공유 카드 */}
-            <section className="px-4 pb-1">
+            <section className="px-4 pb-4">
               <KakaoTalkShareCard parsingResult={parsingResult} />
             </section>
-
-            {/* Footer */}
-            <footer className="pt-[1px] pb-[1px] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5">
-              <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
-              <span>Kount 카카오톡 대화 분석기</span>
-            </footer>
           </div>
         )}
       </main>

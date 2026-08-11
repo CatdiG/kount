@@ -1548,6 +1548,12 @@ ${formatHabits(userStats)}
         <ChevronUp className="w-4 h-4 text-slate-500 group-hover:text-slate-800 transition-transform group-hover:-translate-y-0.5" />
         <span>맨 위로 올라가기</span>
       </button>
+
+      {/* 🏷️ 하단 로고 & 타이틀 문구 (맨 위로 올라가기 버튼 바로 밑 중앙 정렬) */}
+      <div className="pt-2.5 pb-0.5 flex items-center justify-center gap-1.5 text-xs text-slate-400 font-medium">
+        <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
+        <span>Kount 카카오톡 대화 분석기</span>
+      </div>
     </div>
   );
 }
