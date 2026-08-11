@@ -1355,7 +1355,7 @@ ${formatHabits(userStats)}
 
         {/* 2. 그 밑: 선택됨 카운터 & 전체 선택 / 전체 해제 버튼 */}
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 pt-0.5">
-          <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl bg-amber-100/90 text-amber-950 border border-amber-300 shadow-2xs">
+          <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl bg-[#FAF4C0]/70 text-amber-950 border border-[#F0E583] shadow-2xs">
             선택됨: <span className="text-amber-900 font-black">{totalSelectedCount}</span> / {1 + HALL_OF_FAME_ITEMS.length + CHAT_CHART_ITEMS.length}개
           </span>
           <div className="flex items-center gap-1.5">
@@ -1381,7 +1381,7 @@ ${formatHabits(userStats)}
             onClick={() => setIsOverviewSelected(!isOverviewSelected)}
             className={`w-full p-2.5 rounded-2xl border text-left flex items-center justify-between gap-2.5 transition-all cursor-pointer select-none active:scale-[0.99] ${
               isOverviewSelected
-                ? 'bg-gradient-to-r from-amber-100/90 via-amber-50 to-amber-100/80 border-amber-400 ring-2 ring-amber-300/40 text-amber-950 shadow-2xs'
+                ? 'bg-[#FAF4C0]/60 border-[#F0E583] ring-2 ring-[#FAF4C0]/50 text-amber-950 shadow-2xs'
                 : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
             }`}
           >
@@ -1394,7 +1394,7 @@ ${formatHabits(userStats)}
             <div
               className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-extrabold flex-shrink-0 transition-all ${
                 isOverviewSelected
-                  ? 'bg-amber-400 text-amber-950 font-black shadow-2xs'
+                  ? 'bg-[#FAF4C0] text-amber-950 border border-[#E5D558] font-black shadow-2xs'
                   : 'bg-slate-200 text-slate-400 border border-slate-300'
               }`}
             >
@@ -1440,7 +1440,7 @@ ${formatHabits(userStats)}
                   onClick={() => toggleHallOfFameItem(item.id)}
                   className={`px-2 py-2 rounded-xl border text-left flex items-center justify-between gap-1 transition-all cursor-pointer select-none active:scale-[0.98] h-9 ${
                     isSelected
-                      ? 'bg-gradient-to-r from-amber-100/90 via-amber-50 to-amber-100/80 border-amber-400 ring-2 ring-amber-300/40 text-amber-950 shadow-2xs'
+                      ? 'bg-[#FAF4C0]/60 border-[#F0E583] ring-2 ring-[#FAF4C0]/50 text-amber-950 shadow-2xs'
                       : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
                   }`}
                 >
@@ -1455,7 +1455,7 @@ ${formatHabits(userStats)}
                   <div
                     className={`w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center text-[8px] sm:text-[9px] font-extrabold flex-shrink-0 transition-all ${
                       isSelected
-                        ? 'bg-amber-400 text-amber-950 font-black shadow-2xs'
+                        ? 'bg-[#FAF4C0] text-amber-950 border border-[#E5D558] font-black shadow-2xs'
                         : 'bg-slate-200 text-slate-400 border border-slate-300'
                     }`}
                   >
@@ -1504,7 +1504,7 @@ ${formatHabits(userStats)}
                   onClick={() => toggleChartItem(item.id)}
                   className={`p-2.5 rounded-xl border text-left flex items-center justify-between gap-2 transition-all cursor-pointer select-none active:scale-[0.98] h-9 ${
                     isSelected
-                      ? 'bg-gradient-to-r from-amber-100/90 via-amber-50 to-amber-100/80 border-amber-400 ring-2 ring-amber-300/40 text-amber-950 shadow-2xs'
+                      ? 'bg-[#FAF4C0]/60 border-[#F0E583] ring-2 ring-[#FAF4C0]/50 text-amber-950 shadow-2xs'
                       : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
                   }`}
                 >
@@ -1519,7 +1519,7 @@ ${formatHabits(userStats)}
                   <div
                     className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] font-extrabold flex-shrink-0 transition-all ${
                       isSelected
-                        ? 'bg-amber-400 text-amber-950 font-black shadow-2xs'
+                        ? 'bg-[#FAF4C0] text-amber-950 border border-[#E5D558] font-black shadow-2xs'
                         : 'bg-slate-200 text-slate-400 border border-slate-300'
                     }`}
                   >
