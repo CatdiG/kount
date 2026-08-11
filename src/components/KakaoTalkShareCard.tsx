@@ -1355,8 +1355,8 @@ ${formatHabits(userStats)}
 
         {/* 2. 그 밑: 선택됨 카운터 & 전체 선택 / 전체 해제 버튼 */}
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 pt-0.5">
-          <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl bg-[#FAF4C0]/50 text-amber-950 border border-[#F0E583] shadow-2xs">
-            선택됨: <span className="text-amber-900 font-black">{totalSelectedCount}</span> / {1 + HALL_OF_FAME_ITEMS.length + CHAT_CHART_ITEMS.length}개
+          <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 border border-slate-200 shadow-2xs">
+            선택됨: <span className="text-slate-900 font-black">{totalSelectedCount}</span> / {1 + HALL_OF_FAME_ITEMS.length + CHAT_CHART_ITEMS.length}개
           </span>
           <div className="flex items-center gap-1.5">
             <button
