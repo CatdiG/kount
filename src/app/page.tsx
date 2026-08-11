@@ -9,6 +9,7 @@ import FileUploader from '@/components/FileUploader';
 import DateRangeFilter from '@/components/DateRangeFilter';
 import SummaryCards from '@/components/SummaryCards';
 import KakaoTalkShareCard from '@/components/KakaoTalkShareCard';
+import BottomAdBanner from '@/components/BottomAdBanner';
 import { RefreshCw, Shield } from 'lucide-react';
 import { readWebFileAsText } from '@/lib/filesystemUtils';
 import { useChatData } from '@/context/ChatDataContext';
@@ -215,12 +216,15 @@ export default function Home() {
           </div>
         )}
 
-        {/* Footer (고정 하단 노출) */}
-        <footer className="pt-4 pb-[calc(1.25rem+env(safe-area-inset-bottom,12px))] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-auto flex-shrink-0">
+        {/* Footer (하단 고정 광고 배너 높이를 고려한 safe area 여백 적용) */}
+        <footer className="pt-4 pb-[calc(4.5rem+env(safe-area-inset-bottom,16px))] sm:pb-[calc(5rem+env(safe-area-inset-bottom,16px))] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-auto flex-shrink-0">
           <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
           <span>Kount 카카오톡 대화 분석기</span>
         </footer>
       </main>
+
+      {/* 📢 화면 최하단 고정 배너 광고 (Web Google AdSense & Mobile AdMob 고정 배너) */}
+      <BottomAdBanner />
     </div>
   );
 }
