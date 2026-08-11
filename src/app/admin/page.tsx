@@ -10,7 +10,7 @@ import KakaoTalkShareCard from '@/components/KakaoTalkShareCard';
 import { useChatData } from '@/context/ChatDataContext';
 import { calculateChatStats } from '@/lib/statsCalculator';
 import { ParsingResult } from '@/types/chat';
-import { checkAndRequestPermissions, testFileAccessPermission, testInternetConnection } from '@/lib/filesystemUtils';
+import { testFileAccessPermission, testInternetConnection } from '@/lib/filesystemUtils';
 import { Settings, Shield, FileText, Download, Trash2, ArrowLeft, Layers, Lock } from 'lucide-react';
 
 export default function AdminPage() {
@@ -62,11 +62,6 @@ export default function AdminPage() {
   };
 
   const handleProcessText = async (rawText: string, fileName: string, isFromUpload: boolean = false) => {
-    try {
-      await checkAndRequestPermissions();
-    } catch {
-      // Permission request fallback
-    }
     processChatText(rawText, fileName, isFromUpload);
   };
 

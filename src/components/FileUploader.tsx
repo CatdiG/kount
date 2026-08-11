@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from 'react';
 import { UploadCloud, CheckCircle2, Share2 } from 'lucide-react';
-import { checkAndRequestPermissions, readWebFileAsText } from '@/lib/filesystemUtils';
+import { readWebFileAsText } from '@/lib/filesystemUtils';
 
 interface FileUploaderProps {
   onDataParsed: (rawText: string, fileName: string) => void;
@@ -25,7 +25,6 @@ export default function FileUploader({ onDataParsed, isUploaded = false }: FileU
     }
 
     try {
-      await checkAndRequestPermissions();
       const content = await readWebFileAsText(file);
       if (content) {
         setLoadedFileName(file.name);

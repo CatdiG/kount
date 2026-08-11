@@ -2,25 +2,10 @@ import { Capacitor } from '@capacitor/core';
 import { Filesystem, Directory, Encoding, PermissionStatus } from '@capacitor/filesystem';
 
 /**
- * Checks and requests storage/media permissions on native platforms.
+ * Checks permissions (no runtime permission requested).
  */
 export async function checkAndRequestPermissions(): Promise<boolean> {
-  if (!Capacitor.isNativePlatform()) {
-    return true;
-  }
-
-  try {
-    const status: PermissionStatus = await Filesystem.checkPermissions();
-    if (status.publicStorage === 'granted') {
-      return true;
-    }
-
-    const reqStatus = await Filesystem.requestPermissions();
-    return reqStatus.publicStorage === 'granted';
-  } catch (err) {
-    console.warn('Filesystem permission request failed or handled:', err);
-    return false;
-  }
+  return true;
 }
 
 /**
@@ -138,7 +123,6 @@ export function readWebFileAsText(file: File): Promise<string> {
  */
 export async function testFileAccessPermission(): Promise<{ success: boolean; message: string }> {
   try {
-    await checkAndRequestPermissions();
     if (Capacitor.isNativePlatform()) {
       const testPath = 'kount_perm_test.txt';
       const testData = 'permission_test_content';
