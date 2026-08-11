@@ -10,6 +10,7 @@ import DateRangeFilter from '@/components/DateRangeFilter';
 import SummaryCards from '@/components/SummaryCards';
 import KakaoTalkShareCard from '@/components/KakaoTalkShareCard';
 import BottomAdBanner from '@/components/BottomAdBanner';
+import VideoAdModal from '@/components/VideoAdModal';
 import { RefreshCw, Shield } from 'lucide-react';
 import { readWebFileAsText } from '@/lib/filesystemUtils';
 import { useChatData } from '@/context/ChatDataContext';
@@ -81,17 +82,32 @@ export default function Home() {
     };
   }, []);
 
-  const handleProcessText = (rawText: string, fileName: string, triggerConfetti = true) => {
-    setStartDate('');
-    setEndDate('');
-    processChatText(rawText, fileName, true);
-    if (triggerConfetti) {
+  // 🎬 파일 업로드 시 자동 동영상 광고 실행 상태
+  const [pendingUpload, setPendingUpload] = useState<{ rawText: string; fileName: string } | null>(null);
+  const [isVideoAdOpen, setIsVideoAdOpen] = useState<boolean>(false);
+
+  const handleProcessText = (rawText: string, fileName: string) => {
+    // 1) 업로드된 대화 파일 정보를 임시 보관
+    setPendingUpload({ rawText, fileName });
+
+    // 2) 수동 버튼 클릭 없이 동영상 광고 자동 실행!
+    setIsVideoAdOpen(true);
+  };
+
+  // 3) 동영상 광고 재생 완료 후 실행되는 분석 결과 처리 콜백
+  const handleAdCompleted = () => {
+    if (pendingUpload) {
+      setStartDate('');
+      setEndDate('');
+      processChatText(pendingUpload.rawText, pendingUpload.fileName, true);
       confetti({
         particleCount: 80,
         spread: 70,
         origin: { y: 0.6 },
       });
+      setPendingUpload(null);
     }
+    setIsVideoAdOpen(false);
   };
 
   // Date-filtered calculation (User Mode only calculates when user uploaded data exists)
@@ -173,7 +189,7 @@ export default function Home() {
         {!isUserUploaded && (
           <section className="px-4 pt-6 flex-1 flex flex-col justify-center items-center my-auto">
             <FileUploader
-              onDataParsed={(rawText, fileName) => handleProcessText(rawText, fileName, true)}
+              onDataParsed={(rawText, fileName) => handleProcessText(rawText, fileName)}
             />
           </section>
         )}
@@ -225,6 +241,20 @@ export default function Home() {
 
       {/* 📢 모바일 네이티브 앱 전용 고정 배너 광고 */}
       <BottomAdBanner />
+
+      {/* 🎬 파일 업로드 시 자동 실행되는 전면 동영상 광고 모달 */}
+      <VideoAdModal
+        isOpen={isVideoAdOpen}
+        onClose={() => {
+          setIsVideoAdOpen(false);
+          if (pendingUpload) {
+            handleAdCompleted();
+          }
+        }}
+        onAdCompleted={handleAdCompleted}
+        rewardTitle="카카오톡 대화 분석 결과 확인"
+        adTitle="Kount 카카오톡 대화 분석 전면 스폰서 광고"
+      />
     </div>
   );
 }

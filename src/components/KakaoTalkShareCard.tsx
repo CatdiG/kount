@@ -1545,50 +1545,12 @@ ${formatHabits(userStats)}
           </div>
         </div>
 
-        {/* 🎬 보상형 동영상 광고 (Rewarded Video Ad) - 모바일 앱(Capacitor Native) 환경에서만 노출 */}
-        {isNativeApp && (
-          <div className="pt-2 mt-1 border-t border-slate-100">
-            <button
-              type="button"
-              onClick={() => setIsVideoAdOpen(true)}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950 to-purple-950 hover:from-slate-800 hover:to-purple-900 text-white text-xs font-bold transition-all active:scale-[0.99] cursor-pointer shadow-sm border border-slate-800"
-            >
-              <div className="flex items-center gap-2 min-w-0">
-                <div className="w-7 h-7 rounded-xl bg-amber-400 text-slate-950 flex items-center justify-center font-black flex-shrink-0 text-sm shadow-2xs">
-                  🎬
-                </div>
-                <div className="text-left truncate min-w-0">
-                  <p className="font-extrabold text-amber-300 truncate text-xs">
-                    {isRewardUnlocked
-                      ? '✅ 동영상 광고 시청 완료! (프리미엄 혜택 해제됨)'
-                      : '5초 동영상 광고 시청 후 모든 분석 혜택 잠금해제'}
-                  </p>
-                  <p className="text-[10px] text-slate-400 font-normal truncate">
-                    Google AdMob / AdSense 보상형 동영상 광고 지원
-                  </p>
-                </div>
-              </div>
-              <span className="text-[10px] font-black px-2.5 py-1 rounded-xl bg-amber-400/20 text-amber-300 border border-amber-400/40 flex-shrink-0">
-                {isRewardUnlocked ? '시청완료' : '광고보기'}
-              </span>
-            </button>
-          </div>
-        )}
-
         {totalSelectedCount === 0 && (
           <p className="text-[11px] font-extrabold text-rose-500 text-center animate-pulse pt-1">
             ⚠️ 최소 1개 이상의 카드를 선택해 주세요.
           </p>
         )}
       </div>
-
-      {/* 🎬 동영상 광고 모달 (VideoAdModal) */}
-      <VideoAdModal
-        isOpen={isVideoAdOpen}
-        onClose={() => setIsVideoAdOpen(false)}
-        onAdCompleted={() => setIsRewardUnlocked(true)}
-        rewardTitle="모든 대화 성향 분석 리포트 & 이미지 다운로드 혜택"
-      />
 
       {/* 🔝 맨 위로 이동 버튼 (웹 전용) */}
       <button
