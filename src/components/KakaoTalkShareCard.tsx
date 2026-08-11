@@ -1030,7 +1030,7 @@ ${formatHabits(userStats)}
             <div className="bg-slate-50 border border-slate-200 rounded-2xl p-3.5 space-y-2 shadow-2xs flex-grow my-1 overflow-hidden box-border break-inside-avoid">
               <div className="flex items-center justify-between border-b border-slate-200/80 pb-1">
                 <h3 className="text-xs font-black text-slate-900 flex items-center gap-1.5">
-                  <SpeechHabitEmoji size={26} /> 멤버별 순위& 레퍼토리 (11위~)
+                  <SpeechHabitEmoji size={26} /> 멤버별 순위& 레퍼토리 (11위~{userStats.length}위)
                 </h3>
                 <span className="text-[9px] text-slate-500 font-mono">
                   총 {userStats.length}명
