@@ -1304,7 +1304,7 @@ ${formatHabits(userStats)}
               showKeywords={selectedChartIds.includes('keywords')}
             />
           </div>
-          <BrandingWatermark />
+          <BrandingWatermark className="-mt-2 pr-1" />
         </div>
       </div>
 
