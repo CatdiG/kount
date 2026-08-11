@@ -1543,7 +1543,7 @@ ${formatHabits(userStats)}
         onClick={() => {
           window.scrollTo({ top: 0, behavior: 'smooth' });
         }}
-        className="w-full py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.99] cursor-pointer mt-3 group"
+        className="w-full py-3.5 px-4 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 hover:text-slate-900 border border-slate-200 text-xs sm:text-sm font-extrabold flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.99] cursor-pointer mt-[7px] group"
       >
         <ChevronUp className="w-4 h-4 text-slate-500 group-hover:text-slate-800 transition-transform group-hover:-translate-y-0.5" />
         <span>맨 위로 올라가기</span>

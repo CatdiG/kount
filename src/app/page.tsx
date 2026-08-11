@@ -214,9 +214,8 @@ export default function Home() {
             </section>
 
             {/* Footer */}
-            <footer className="pt-4 text-center text-xs text-slate-400 font-medium space-y-1">
+            <footer className="pt-[11px] pb-4 text-center text-xs text-slate-400 font-medium">
               <p>Kount 카카오톡 대화 분석기</p>
-              <p className="text-[11px] text-slate-500 font-mono">App Version v1.0.0</p>
             </footer>
           </div>
         )}
