@@ -125,10 +125,10 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-slate-100 sm:py-8 flex flex-col items-center justify-start selection:bg-indigo-500 selection:text-white font-sans">
-      {/* Clean User View Mobile / Responsive Container */}
-      <main className="w-full sm:max-w-2xl bg-slate-50 min-h-screen sm:min-h-0 sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col relative">
+      {/* Clean User View Mobile / Responsive Container (Fixed Height Structure) */}
+      <main className="w-full sm:max-w-2xl bg-slate-50 min-h-screen sm:rounded-3xl border border-slate-200 shadow-xl overflow-hidden flex flex-col justify-between relative">
         {/* 1. Header Bar */}
-        <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between shadow-2xs header-safe-padding">
+        <header className="border-b border-slate-200 bg-white/95 backdrop-blur-md sticky top-0 z-40 px-4 pt-[calc(0.75rem+env(safe-area-inset-top,0px))] pb-3 flex items-center justify-between shadow-2xs header-safe-padding flex-shrink-0">
           <div className="flex items-center gap-2">
             <Image
               src="/kount-app-logo.png"
@@ -171,7 +171,7 @@ export default function Home() {
 
         {/* 2. 대화 파일 업로드 / '공유한 대화가 없습니다.' 카드 */}
         {!isUserUploaded && (
-          <section className="px-4 pt-6 flex-1 flex flex-col justify-center items-center">
+          <section className="px-4 pt-6 flex-1 flex flex-col justify-center items-center my-auto">
             <FileUploader
               onDataParsed={(rawText, fileName) => handleProcessText(rawText, fileName, true)}
             />
@@ -195,7 +195,7 @@ export default function Home() {
 
         {/* Loading Overlay */}
         {isLoading && (
-          <div className="p-8 text-center space-y-3 flex-1 flex flex-col justify-center items-center">
+          <div className="p-8 text-center space-y-3 flex-1 flex flex-col justify-center items-center my-auto">
             <div className="inline-block w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
             <p className="text-sm font-bold text-slate-700">대화 데이터를 분석하고 있습니다...</p>
           </div>
@@ -216,14 +216,14 @@ export default function Home() {
           </div>
         )}
 
-        {/* Footer (웹 뷰 클린 패딩 적용) */}
-        <footer className="pt-4 pb-[calc(1.5rem+env(safe-area-inset-bottom,12px))] text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 mt-auto flex-shrink-0">
+        {/* Footer (고정 하단 노출) */}
+        <footer className="py-4 text-center text-xs text-slate-400 font-medium flex items-center justify-center gap-1.5 flex-shrink-0">
           <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
           <span>Kount 카카오톡 대화 분석기</span>
         </footer>
       </main>
 
-      {/* 📢 화면 최하단 고정 배너 광고 (Web Google AdSense & Mobile AdMob 고정 배너) */}
+      {/* 📢 모바일 네이티브 앱 전용 고정 배너 광고 */}
       <BottomAdBanner />
     </div>
   );
