@@ -1355,7 +1355,7 @@ ${formatHabits(userStats)}
 
         {/* 2. 그 밑: 선택됨 카운터 & 전체 선택 / 전체 해제 버튼 */}
         <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3 pt-0.5">
-          <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl bg-[#FAF4C0]/70 text-amber-950 border border-[#F0E583] shadow-2xs">
+          <span className="text-xs font-mono font-extrabold px-2.5 py-1 rounded-xl bg-[#FAF4C0]/50 text-amber-950 border border-[#F0E583] shadow-2xs">
             선택됨: <span className="text-amber-900 font-black">{totalSelectedCount}</span> / {1 + HALL_OF_FAME_ITEMS.length + CHAT_CHART_ITEMS.length}개
           </span>
           <div className="flex items-center gap-1.5">
@@ -1381,7 +1381,7 @@ ${formatHabits(userStats)}
             onClick={() => setIsOverviewSelected(!isOverviewSelected)}
             className={`w-full p-2.5 rounded-2xl border text-left flex items-center justify-between gap-2.5 transition-all cursor-pointer select-none active:scale-[0.99] ${
               isOverviewSelected
-                ? 'bg-[#FAF4C0]/60 border-[#F0E583] ring-2 ring-[#FAF4C0]/50 text-amber-950 shadow-2xs'
+                ? 'bg-[#FAF4C0]/50 border-[#F0E583] ring-2 ring-[#FAF4C0]/40 text-amber-950 shadow-2xs'
                 : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
             }`}
           >
@@ -1440,7 +1440,7 @@ ${formatHabits(userStats)}
                   onClick={() => toggleHallOfFameItem(item.id)}
                   className={`px-2 py-2 rounded-xl border text-left flex items-center justify-between gap-1 transition-all cursor-pointer select-none active:scale-[0.98] h-9 ${
                     isSelected
-                      ? 'bg-[#FAF4C0]/60 border-[#F0E583] ring-2 ring-[#FAF4C0]/50 text-amber-950 shadow-2xs'
+                      ? 'bg-[#FAF4C0]/50 border-[#F0E583] ring-2 ring-[#FAF4C0]/40 text-amber-950 shadow-2xs'
                       : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
                   }`}
                 >
@@ -1504,7 +1504,7 @@ ${formatHabits(userStats)}
                   onClick={() => toggleChartItem(item.id)}
                   className={`p-2.5 rounded-xl border text-left flex items-center justify-between gap-2 transition-all cursor-pointer select-none active:scale-[0.98] h-9 ${
                     isSelected
-                      ? 'bg-[#FAF4C0]/60 border-[#F0E583] ring-2 ring-[#FAF4C0]/50 text-amber-950 shadow-2xs'
+                      ? 'bg-[#FAF4C0]/50 border-[#F0E583] ring-2 ring-[#FAF4C0]/40 text-amber-950 shadow-2xs'
                       : 'bg-slate-50 hover:bg-slate-100 border-slate-200 opacity-60'
                   }`}
                 >
