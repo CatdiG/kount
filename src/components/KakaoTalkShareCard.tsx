@@ -1549,8 +1549,8 @@ ${formatHabits(userStats)}
         <span>맨 위로 올라가기</span>
       </button>
 
-      {/* 🏷️ 하단 로고 & 타이틀 문구 (맨 위로 올라가기 버튼 바로 밑 중앙 정렬) */}
-      <div className="pt-2.5 pb-0.5 flex items-center justify-center gap-1.5 text-xs text-slate-400 font-medium">
+      {/* 🏷️ 하단 로고 & 타이틀 문구 (상단/하단 간격 100% 대칭 py-3 적용) */}
+      <div className="py-3 flex items-center justify-center gap-1.5 text-xs text-slate-400 font-medium">
         <img src="/kount-logo-trans.png" alt="Kount Logo" className="w-[18px] h-[18px] object-contain flex-shrink-0" />
         <span>Kount 카카오톡 대화 분석기</span>
       </div>
