@@ -2,5 +2,9 @@
   "appId": "com.kount.kakaotalk",
   "appName": "카톡 대화 분석 리포트",
   "webDir": "out",
-  "bundledWebRuntime": false
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "http://10.0.2.2:3000",
+    "cleartext": true
+  }
 }
